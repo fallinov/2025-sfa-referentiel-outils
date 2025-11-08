@@ -1,0 +1,56 @@
+# Workflow for deploying Nuxt site to Production via SFTP
+# Triggered on release creation (tags like v1.0.0)
+#
+name: Deploy to Production (SFTP)
+
+on:
+  release:
+    types: [published]
+  # Allow manual trigger for emergency deployments
+  workflow_dispatch:
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate static site for production
+        run: pnpm run generate:prod
+        env:
+          NODE_ENV: production
+
+      - name: Deploy to Production via SFTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.SFTP_SERVER }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          protocol: ftps
+          port: ${{ secrets.SFTP_PORT || 21 }}
+          local-dir: ./.output/public/
+          server-dir: ${{ secrets.SFTP_SERVER_DIR }}
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**

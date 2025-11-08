@@ -58,3 +58,83 @@ pnpm preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+## 🚀 Deployment Strategy (DevOps)
+
+This project uses a **trunk-based development** workflow with automated deployments to two environments:
+
+### **Environments**
+
+| Environment | URL | Trigger | Deployment |
+|-------------|-----|---------|------------|
+| **Staging** | https://fallinov.github.io/2025-sfa-referentiel-outils/ | Push to `main` | GitHub Pages (automatic) |
+| **Production** | Your production domain | Release/Tag (e.g., `v1.0.0`) | SFTP (automatic) |
+
+### **Workflow**
+
+```
+1. Development
+   ↓ git push origin main
+2. Staging (GitHub Pages)
+   ↓ Test & validate
+3. Create release (v1.0.0)
+   ↓ Automatic deployment
+4. Production (SFTP)
+```
+
+### **Commands**
+
+```bash
+# Generate for GitHub Pages (staging)
+pnpm run generate:github
+
+# Generate for production (root domain)
+pnpm run generate:prod
+
+# Standard generate (uses env var or defaults to root)
+pnpm run generate
+```
+
+### **Creating a Release**
+
+To deploy to production:
+
+```bash
+# 1. Tag the release
+git tag v1.0.0
+git push origin v1.0.0
+
+# 2. Create a GitHub release
+# Go to: https://github.com/fallinov/2025-sfa-referentiel-outils/releases/new
+# Or use GitHub CLI:
+gh release create v1.0.0 --title "Release v1.0.0" --notes "Description of changes"
+```
+
+The SFTP deployment will trigger automatically.
+
+### **Configuration Required**
+
+For SFTP deployment to work, configure these **GitHub Secrets**:
+
+1. Go to `Settings` → `Secrets and variables` → `Actions`
+2. Add the following secrets:
+   - `SFTP_SERVER`: Your SFTP server hostname
+   - `SFTP_USERNAME`: SFTP username
+   - `SFTP_PASSWORD`: SFTP password
+   - `SFTP_PORT`: SFTP port (optional, defaults to 21)
+   - `SFTP_SERVER_DIR`: Target directory on server (e.g., `/public_html/`)
+
+Optional: Set `PRODUCTION_URL` variable for environment link.
+
+### **Manual Deployment**
+
+If you prefer manual SFTP upload:
+
+```bash
+# Generate the site
+pnpm run generate:prod
+
+# Upload the .output/public/ folder to your server via:
+# - FileZilla, Cyberduck, or your preferred SFTP client
+# - Or use the GitHub Actions workflow_dispatch manually
+```
