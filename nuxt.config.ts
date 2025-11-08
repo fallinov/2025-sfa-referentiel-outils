@@ -6,10 +6,17 @@ export default defineNuxtConfig({
   ],
 
   app: {
-    baseURL: '/2025-sfa-referentiel-outils/',
+    // Utilise NUXT_APP_BASE_URL pour la flexibilité de déploiement
+    // GitHub Pages: '/2025-sfa-referentiel-outils/'
+    // SFTP (racine): '/'
+    baseURL: process.env.NUXT_APP_BASE_URL || '/',
     head: {
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/2025-sfa-referentiel-outils/favicon.ico' }
+        {
+          rel: 'icon',
+          type: 'image/x-icon',
+          href: `${process.env.NUXT_APP_BASE_URL || ''}/favicon.ico`.replace(/\/+/g, '/')
+        }
       ]
     }
   },

@@ -44,6 +44,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Static HTML export with Nuxt
         run: pnpm run generate
+        env:
+          NUXT_APP_BASE_URL: /2025-sfa-referentiel-outils/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
