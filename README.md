@@ -2,7 +2,10 @@
 
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
 
-Application web référençant les outils utilisés en formation Steve Fallet, développée avec [Nuxt UI](https://ui.nuxt.com).
+Application web référençant les outils utilisés en formation par Steve Fallet, développée avec [Nuxt UI](https://ui.nuxt.com).
+
+> **📝 Note pour les apprentis :** Dans ce document, remplacez `<votre-compte>` par votre nom d'utilisateur GitHub.
+> Par exemple, si votre compte est `jean-dupont`, l'URL sera : `https://github.com/jean-dupont/2025-sfa-nuxt-devops`
 
 ## 📚 Table des matières
 
@@ -58,7 +61,7 @@ Ce projet utilise une approche **trunk-based development** avec déploiements au
 
 | Environnement | URL | Déclencheur | Méthode |
 |---------------|-----|-------------|---------|
-| **🧪 Test (Staging)** | https://fallinov.github.io/2025-sfa-nuxt-devops/ | Push sur `main` | GitHub Pages |
+| **🧪 Test (Staging)** | `https://<votre-compte>.github.io/2025-sfa-nuxt-devops/` | Push sur `main` | GitHub Pages |
 | **🚀 Production** | Votre domaine de production | Tag ou Release | SFTP |
 
 ### 🔄 Workflow de développement
@@ -122,8 +125,8 @@ git push origin main
 ```
 
 ✅ **Résultat :** Le site est automatiquement déployé sur GitHub Pages (test)
-- Vérifier le déploiement : https://github.com/fallinov/2025-sfa-nuxt-devops/actions
-- Tester le site : https://fallinov.github.io/2025-sfa-nuxt-devops/
+- Vérifier le déploiement : `https://github.com/<votre-compte>/2025-sfa-nuxt-devops/actions`
+- Tester le site : `https://<votre-compte>.github.io/2025-sfa-nuxt-devops/`
 
 ### Étape 3 : Mettre en production
 
@@ -158,7 +161,7 @@ git push origin v2.0.0
 
 # 2. Créer une release avec documentation
 # Option 1 : Via l'interface GitHub
-#   → Aller sur https://github.com/fallinov/2025-sfa-nuxt-devops/releases/new
+#   → Aller sur https://github.com/<votre-compte>/2025-sfa-nuxt-devops/releases/new
 #   → Sélectionner le tag v2.0.0
 #   → Ajouter un titre et des notes de version
 #   → Cliquer sur "Publish release"
@@ -212,10 +215,10 @@ v1.2.3
 ### 🔍 Vérifier le statut des déploiements
 
 #### Voir l'historique des déploiements :
-👉 https://github.com/fallinov/2025-sfa-nuxt-devops/actions
+👉 `https://github.com/<votre-compte>/2025-sfa-nuxt-devops/actions`
 
 #### Voir toutes les versions publiées :
-👉 https://github.com/fallinov/2025-sfa-nuxt-devops/releases
+👉 `https://github.com/<votre-compte>/2025-sfa-nuxt-devops/releases`
 
 #### Voir tous les tags créés :
 ```bash
@@ -291,7 +294,7 @@ Ces workflows sont entièrement commentés en français pour faciliter la compr�
 
 ### Voir les logs d'un déploiement qui a échoué
 
-1. Aller sur https://github.com/fallinov/2025-sfa-nuxt-devops/actions
+1. Aller sur `https://github.com/<votre-compte>/2025-sfa-nuxt-devops/actions`
 2. Cliquer sur le workflow qui a échoué
 3. Lire les logs pour identifier l'erreur
 
