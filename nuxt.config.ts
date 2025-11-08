@@ -6,7 +6,12 @@ export default defineNuxtConfig({
   ],
 
   app: {
-    baseURL: '/2025-sfa-referentiel-outils/'
+    baseURL: '/2025-sfa-referentiel-outils/',
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/2025-sfa-referentiel-outils/favicon.ico' }
+      ]
+    }
   },
 
   devtools: {
