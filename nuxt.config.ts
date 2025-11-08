@@ -7,7 +7,7 @@ export default defineNuxtConfig({
 
   app: {
     // Utilise NUXT_APP_BASE_URL pour la flexibilité de déploiement
-    // GitHub Pages: '/2025-sfa-referentiel-outils/'
+    // GitHub Pages: '/2025-sfa-nuxt-devops/'
     // SFTP (racine): '/'
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
     head: {

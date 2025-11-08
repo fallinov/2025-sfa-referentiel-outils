@@ -1,8 +1,8 @@
-# 2025 SFA - Référentiel des Outils
+# 2025 Steve Fallet - Référentiel des Outils
 
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
 
-Application web référençant les outils utilisés en formation SFA, développée avec [Nuxt UI](https://ui.nuxt.com).
+Application web référençant les outils utilisés en formation Steve Fallet, développée avec [Nuxt UI](https://ui.nuxt.com).
 
 ## 📚 Table des matières
 
@@ -58,7 +58,7 @@ Ce projet utilise une approche **trunk-based development** avec déploiements au
 
 | Environnement | URL | Déclencheur | Méthode |
 |---------------|-----|-------------|---------|
-| **🧪 Test (Staging)** | https://fallinov.github.io/2025-sfa-referentiel-outils/ | Push sur `main` | GitHub Pages |
+| **🧪 Test (Staging)** | https://fallinov.github.io/2025-sfa-nuxt-devops/ | Push sur `main` | GitHub Pages |
 | **🚀 Production** | Votre domaine de production | Tag ou Release | SFTP |
 
 ### 🔄 Workflow de développement
@@ -122,8 +122,8 @@ git push origin main
 ```
 
 ✅ **Résultat :** Le site est automatiquement déployé sur GitHub Pages (test)
-- Vérifier le déploiement : https://github.com/fallinov/2025-sfa-referentiel-outils/actions
-- Tester le site : https://fallinov.github.io/2025-sfa-referentiel-outils/
+- Vérifier le déploiement : https://github.com/fallinov/2025-sfa-nuxt-devops/actions
+- Tester le site : https://fallinov.github.io/2025-sfa-nuxt-devops/
 
 ### Étape 3 : Mettre en production
 
@@ -158,7 +158,7 @@ git push origin v2.0.0
 
 # 2. Créer une release avec documentation
 # Option 1 : Via l'interface GitHub
-#   → Aller sur https://github.com/fallinov/2025-sfa-referentiel-outils/releases/new
+#   → Aller sur https://github.com/fallinov/2025-sfa-nuxt-devops/releases/new
 #   → Sélectionner le tag v2.0.0
 #   → Ajouter un titre et des notes de version
 #   → Cliquer sur "Publish release"
@@ -212,10 +212,10 @@ v1.2.3
 ### 🔍 Vérifier le statut des déploiements
 
 #### Voir l'historique des déploiements :
-👉 https://github.com/fallinov/2025-sfa-referentiel-outils/actions
+👉 https://github.com/fallinov/2025-sfa-nuxt-devops/actions
 
 #### Voir toutes les versions publiées :
-👉 https://github.com/fallinov/2025-sfa-referentiel-outils/releases
+👉 https://github.com/fallinov/2025-sfa-nuxt-devops/releases
 
 #### Voir tous les tags créés :
 ```bash
@@ -263,7 +263,7 @@ Le projet utilise des variables d'environnement pour gérer les différents dép
 NUXT_APP_BASE_URL=/
 
 # Pour GitHub Pages (sous-dossier)
-NUXT_APP_BASE_URL=/2025-sfa-referentiel-outils/
+NUXT_APP_BASE_URL=/2025-sfa-nuxt-devops/
 ```
 
 ---
@@ -291,7 +291,7 @@ Ces workflows sont entièrement commentés en français pour faciliter la compr�
 
 ### Voir les logs d'un déploiement qui a échoué
 
-1. Aller sur https://github.com/fallinov/2025-sfa-referentiel-outils/actions
+1. Aller sur https://github.com/fallinov/2025-sfa-nuxt-devops/actions
 2. Cliquer sur le workflow qui a échoué
 3. Lire les logs pour identifier l'erreur
 
@@ -317,4 +317,4 @@ Ce projet est utilisé dans un cadre pédagogique. Les apprentis sont encouragé
 
 ---
 
-**Made with ❤️ for SFA apprentices**
+**Made with ❤️ for Steve Fallet apprentices**

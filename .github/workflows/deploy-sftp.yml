@@ -71,7 +71,7 @@ jobs:
 
       # --- ÉTAPE 5 : Générer le site statique pour la production ---
       # IMPORTANT : utilise 'generate:prod' qui configure baseURL à '/' (racine)
-      # Contrairement au staging qui utilise '/2025-sfa-referentiel-outils/'
+      # Contrairement au staging qui utilise '/2025-sfa-nuxt-devops/'
       # NODE_ENV=production active les optimisations (minification, etc.)
       - name: Generate static site for production
         run: pnpm run generate:prod

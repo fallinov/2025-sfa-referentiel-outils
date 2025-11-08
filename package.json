@@ -1,5 +1,5 @@
 {
-  "name": "2025-sfa-referentiel-outils",
+  "name": "2025-sfa-nuxt-devops",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
     "generate": "nuxt generate",
-    "generate:github": "NUXT_APP_BASE_URL=/2025-sfa-referentiel-outils/ nuxt generate",
+    "generate:github": "NUXT_APP_BASE_URL=/2025-sfa-nuxt-devops/ nuxt generate",
     "generate:prod": "nuxt generate"
   },
   "dependencies": {
