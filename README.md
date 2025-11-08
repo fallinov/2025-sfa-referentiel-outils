@@ -295,11 +295,40 @@ Ces workflows sont entièrement commentés en français pour faciliter la compr�
 - ✅ Les secrets SFTP sont configurés dans GitHub Settings
 - ✅ Le format du tag est correct : `v1.0.0` (pas `1.0.0`)
 
+### Erreur "Timeout (control socket)" lors du déploiement SFTP
+
+**Causes possibles :**
+
+1. **Le serveur n'utilise pas le port 22 (SFTP standard)**
+   - Solution : Vérifier le port SFTP avec votre hébergeur
+   - Configurer `SFTP_PORT` dans GitHub Secrets si différent de 22
+
+2. **Le serveur utilise FTP/FTPS au lieu de SFTP**
+   - SFTP ≠ FTPS (protocoles différents !)
+   - SFTP = SSH File Transfer Protocol (port 22, sécurisé)
+   - FTP/FTPS = File Transfer Protocol (ports 21/990)
+   - Solution : Demander à votre hébergeur s'il supporte SFTP
+
+3. **Firewall ou restrictions réseau**
+   - Certains hébergeurs bloquent les connexions GitHub Actions
+   - Solution : Vérifier avec votre hébergeur
+
+4. **Credentials incorrects**
+   - Vérifier `SFTP_USERNAME` et `SFTP_PASSWORD` dans GitHub Secrets
+   - Tester la connexion manuellement avec FileZilla ou un autre client SFTP
+
+### Erreur "Permission denied" lors du déploiement
+
+**Solution :**
+- Vérifier que `SFTP_SERVER_DIR` existe et que l'utilisateur a les droits d'écriture
+- Exemple : `/public_html/` ou `/www/` ou `/htdocs/`
+
 ### Voir les logs d'un déploiement qui a échoué
 
 1. Aller sur `https://github.com/<votre-compte>/2025-sfa-nuxt-devops/actions`
 2. Cliquer sur le workflow qui a échoué
 3. Lire les logs pour identifier l'erreur
+4. Chercher les mots-clés : "Error", "Failed", "Timeout"
 
 ---
 
