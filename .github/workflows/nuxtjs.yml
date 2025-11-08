@@ -1,63 +1,115 @@
-# Workflow for deploying Nuxt site to GitHub Pages (staging/test environment)
-# Triggered on every push to main branch
-#
+# =============================================================================
+# Workflow de déploiement automatique vers GitHub Pages (environnement de test)
+# =============================================================================
+# Ce workflow se déclenche automatiquement à chaque push sur la branche main
+# Il génère un site statique avec Nuxt et le déploie sur GitHub Pages
+# URL de test : https://fallinov.github.io/2025-sfa-referentiel-outils/
+
 name: Deploy to GitHub Pages (Staging)
 
+# Déclencheurs du workflow
 on:
-  # Runs on pushes targeting the default branch
+  # Se déclenche automatiquement lors d'un push sur la branche main
   push:
     branches: ["main"]
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Permet de déclencher manuellement le workflow depuis l'onglet Actions de GitHub
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Permissions nécessaires pour déployer sur GitHub Pages
+# Le GITHUB_TOKEN est un jeton d'authentification automatique fourni par GitHub
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read      # Lire le code du dépôt
+  pages: write        # Écrire sur GitHub Pages
+  id-token: write     # Générer un jeton d'identité pour la sécurité
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Gestion de la concurrence : évite que plusieurs déploiements simultanés ne se chevauchent
+# Si un nouveau déploiement démarre pendant qu'un autre est en cours :
+# - Les déploiements en attente sont ignorés
+# - Le déploiement en cours continue (cancel-in-progress: false)
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Build job
+  # =============================================================================
+  # JOB 1 : Construction du site (build)
+  # =============================================================================
+  # Ce job compile le projet Nuxt et génère les fichiers HTML/CSS/JS statiques
+
   build:
+    # Système d'exploitation de la machine virtuelle (Ubuntu dernière version)
     runs-on: ubuntu-latest
+
+    # Liste des étapes à exécuter dans l'ordre
     steps:
+      # --- ÉTAPE 1 : Récupérer le code source ---
+      # Clone le dépôt GitHub dans la machine virtuelle
       - name: Checkout
         uses: actions/checkout@v4
+
+      # --- ÉTAPE 2 : Installer pnpm (gestionnaire de paquets) ---
+      # pnpm est plus rapide et économe en espace disque que npm
+      # Version fixée à 10.19.0 pour garantir la reproductibilité
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.19.0
+
+      # --- ÉTAPE 3 : Installer Node.js ---
+      # Node.js est nécessaire pour exécuter Nuxt et compiler le projet
+      # Le cache 'pnpm' évite de retélécharger les dépendances à chaque build
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: 'pnpm'
+          node-version: "20"    # Version LTS de Node.js
+          cache: 'pnpm'         # Active le cache des dépendances
+
+      # --- ÉTAPE 4 : Installer les dépendances du projet ---
+      # --frozen-lockfile : utilise exactement les versions de pnpm-lock.yaml
+      # Garantit que tout le monde utilise les mêmes versions de packages
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # --- ÉTAPE 5 : Générer le site statique ---
+      # 'nuxt generate' crée les fichiers HTML statiques dans .output/public/
+      # NUXT_APP_BASE_URL définit le sous-répertoire pour GitHub Pages
       - name: Static HTML export with Nuxt
         run: pnpm run generate
         env:
           NUXT_APP_BASE_URL: /2025-sfa-referentiel-outils/
+
+      # --- ÉTAPE 6 : Préparer l'upload vers GitHub Pages ---
+      # Crée un artifact (archive) contenant tous les fichiers générés
+      # Cet artifact sera utilisé par le job de déploiement
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./.output/public
 
-  # Deployment job
+  # =============================================================================
+  # JOB 2 : Déploiement sur GitHub Pages (deploy)
+  # =============================================================================
+  # Ce job prend les fichiers générés par le job 'build' et les publie sur GitHub Pages
+
   deploy:
+    # Configuration de l'environnement de déploiement
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: github-pages                                  # Nom de l'environnement
+      url: ${{ steps.deployment.outputs.page_url }}      # URL du site déployé (affichée dans GitHub)
+
+    # Système d'exploitation de la machine virtuelle
     runs-on: ubuntu-latest
+
+    # Ce job ne démarre qu'après la réussite du job 'build'
+    # Si le build échoue, le déploiement n'aura pas lieu
     needs: build
+
+    # Liste des étapes à exécuter
     steps:
+      # --- ÉTAPE UNIQUE : Déployer sur GitHub Pages ---
+      # Récupère l'artifact créé par le job 'build' et le publie sur GitHub Pages
+      # GitHub Pages hébergera alors le site à l'URL configurée
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

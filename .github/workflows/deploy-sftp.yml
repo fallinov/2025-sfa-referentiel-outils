@@ -1,55 +1,88 @@
-# Workflow for deploying Nuxt site to Production via SFTP
-# Triggered on release creation (tags like v1.0.0)
-#
+# =============================================================================
+# Workflow de déploiement automatique en PRODUCTION via SFTP
+# =============================================================================
+# Ce workflow se déclenche UNIQUEMENT lors de la création d'une release (tag)
+# Exemple : créer un tag v1.0.0 déploiera automatiquement le site en production
+# Permet de séparer l'environnement de test (GitHub Pages) de la production (SFTP)
+
 name: Deploy to Production (SFTP)
 
+# Déclencheurs du workflow
 on:
+  # Se déclenche lorsqu'une release est publiée sur GitHub
+  # Exemple : créer une release v1.0.0 déclenche ce workflow
   release:
     types: [published]
-  # Allow manual trigger for emergency deployments
+
+  # Permet de déclencher manuellement le workflow en cas d'urgence
+  # Utile pour redéployer rapidement sans créer une nouvelle release
   workflow_dispatch:
 
 jobs:
-  deploy-production:
-    runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: ${{ vars.PRODUCTION_URL }}
+  # =============================================================================
+  # JOB : Déploiement en production via SFTP
+  # =============================================================================
+  # Ce job génère le site statique et l'upload sur le serveur de production
 
+  deploy-production:
+    # Système d'exploitation de la machine virtuelle
+    runs-on: ubuntu-latest
+
+    # Configuration de l'environnement de production
+    environment:
+      name: production                            # Nom de l'environnement
+      url: ${{ vars.PRODUCTION_URL }}            # URL du site de production (configurable dans GitHub)
+
+    # Liste des étapes à exécuter dans l'ordre
     steps:
+      # --- ÉTAPE 1 : Récupérer le code source ---
+      # Clone le dépôt GitHub dans la machine virtuelle
       - name: Checkout
         uses: actions/checkout@v4
 
+      # --- ÉTAPE 2 : Installer pnpm (gestionnaire de paquets) ---
+      # Version identique au workflow de staging pour garantir la cohérence
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.19.0
 
+      # --- ÉTAPE 3 : Installer Node.js ---
+      # Configuration identique au workflow de staging
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: 'pnpm'
+          node-version: "20"    # Version LTS de Node.js
+          cache: 'pnpm'         # Active le cache des dépendances
 
+      # --- ÉTAPE 4 : Installer les dépendances du projet ---
+      # --frozen-lockfile garantit les mêmes versions qu'en développement
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # --- ÉTAPE 5 : Générer le site statique pour la production ---
+      # IMPORTANT : utilise 'generate:prod' qui configure baseURL à '/' (racine)
+      # Contrairement au staging qui utilise '/2025-sfa-referentiel-outils/'
+      # NODE_ENV=production active les optimisations (minification, etc.)
       - name: Generate static site for production
         run: pnpm run generate:prod
         env:
           NODE_ENV: production
 
+      # --- ÉTAPE 6 : Déployer sur le serveur de production via SFTP ---
+      # Upload tous les fichiers générés (.output/public/) vers le serveur
+      # Les credentials SFTP sont stockés de manière sécurisée dans GitHub Secrets
       - name: Deploy to Production via SFTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.SFTP_SERVER }}
-          username: ${{ secrets.SFTP_USERNAME }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          protocol: ftps
-          port: ${{ secrets.SFTP_PORT || 21 }}
-          local-dir: ./.output/public/
-          server-dir: ${{ secrets.SFTP_SERVER_DIR }}
-          dangerous-clean-slate: false
+          server: ${{ secrets.SFTP_SERVER }}              # Adresse du serveur SFTP
+          username: ${{ secrets.SFTP_USERNAME }}          # Nom d'utilisateur SFTP
+          password: ${{ secrets.SFTP_PASSWORD }}          # Mot de passe SFTP (sécurisé)
+          protocol: ftps                                   # Protocole FTPS (FTP sécurisé)
+          port: ${{ secrets.SFTP_PORT || 21 }}            # Port SFTP (21 par défaut)
+          local-dir: ./.output/public/                    # Dossier local à uploader
+          server-dir: ${{ secrets.SFTP_SERVER_DIR }}      # Dossier de destination sur le serveur
+          dangerous-clean-slate: false                     # Ne PAS supprimer tous les fichiers avant upload (sécurité)
           exclude: |
             **/.git*
             **/.git*/**
