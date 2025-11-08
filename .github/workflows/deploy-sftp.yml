@@ -81,18 +81,15 @@ jobs:
       # --- ÉTAPE 6 : Déployer sur le serveur de production via SFTP ---
       # Upload tous les fichiers générés (.output/public/) vers le serveur
       # Les credentials SFTP sont stockés de manière sécurisée dans GitHub Secrets
+      # IMPORTANT : Utilise wlixcc/SFTP-Deploy-Action pour SFTP (SSH), pas FTP-Deploy-Action
       - name: Deploy to Production via SFTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
           server: ${{ secrets.SFTP_SERVER }}              # Adresse du serveur SFTP
           username: ${{ secrets.SFTP_USERNAME }}          # Nom d'utilisateur SFTP
           password: ${{ secrets.SFTP_PASSWORD }}          # Mot de passe SFTP (sécurisé)
-          protocol: ftps                                   # Protocole FTPS (FTP sécurisé)
-          port: ${{ secrets.SFTP_PORT || 21 }}            # Port SFTP (21 par défaut)
-          local-dir: ./.output/public/                    # Dossier local à uploader
-          server-dir: ${{ secrets.SFTP_SERVER_DIR }}      # Dossier de destination sur le serveur
-          dangerous-clean-slate: false                     # Ne PAS supprimer tous les fichiers avant upload (sécurité)
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
+          port: ${{ secrets.SFTP_PORT || 22 }}            # Port SFTP (22 par défaut pour SSH)
+          local_path: './.output/public/*'                # Dossier local à uploader (tous les fichiers)
+          remote_path: ${{ secrets.SFTP_SERVER_DIR }}     # Dossier de destination sur le serveur
+          sftp_only: true                                  # Utiliser SFTP uniquement (pas SCP)
+          delete_remote_files: false                       # Ne PAS supprimer les fichiers distants avant upload

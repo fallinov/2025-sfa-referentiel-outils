@@ -251,11 +251,14 @@ Pour que le déploiement SFTP fonctionne, configurer ces secrets dans GitHub :
 
 | Secret | Description | Exemple |
 |--------|-------------|---------|
-| `SFTP_SERVER` | Adresse du serveur SFTP | `ftp.votredomaine.com` |
+| `SFTP_SERVER` | Adresse du serveur SFTP | `sftp.votredomaine.com` |
 | `SFTP_USERNAME` | Nom d'utilisateur SFTP | `votre_user` |
 | `SFTP_PASSWORD` | Mot de passe SFTP | `VotreMdP123!` |
 | `SFTP_SERVER_DIR` | Dossier de destination | `/public_html/` |
-| `SFTP_PORT` | Port SFTP (optionnel) | `21` ou `22` |
+| `SFTP_PORT` | Port SFTP (optionnel) | `22` (défaut pour SFTP) |
+
+**Note importante :** Ce projet utilise **SFTP** (SSH File Transfer Protocol sur port 22), pas FTP/FTPS.
+Assurez-vous que votre hébergeur supporte SFTP et que vous utilisez le port 22 (port SSH standard).
 
 ### 🌐 Variables d'environnement
 
