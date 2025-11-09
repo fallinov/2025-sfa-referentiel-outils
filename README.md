@@ -332,13 +332,25 @@ mkdir -p public
 touch public/.nojekyll
 ```
 
-**🚫 Pourquoi créer `.nojekyll` ?**
+#### 🚫 Pourquoi créer `.nojekyll` ?
 
-**Le problème :**
-GitHub Pages utilise automatiquement **Jekyll**, un générateur de sites statiques. Jekyll a une règle : il ignore tous les dossiers et fichiers commençant par `_` (underscore).
+**⚠️ IMPORTANT : Ce fichier est UNIQUEMENT nécessaire pour GitHub Pages !**
+
+Si vous déployez UNIQUEMENT sur un serveur SFTP (production), ce fichier n'est **pas nécessaire**.
+Cependant, dans ce guide, nous utilisons **deux environnements** :
+- 🧪 **Test** : GitHub Pages (nécessite `.nojekyll`)
+- 🚀 **Production** : SFTP (n'a pas besoin de `.nojekyll`)
+
+---
+
+**Le problème spécifique à GitHub Pages :**
+
+GitHub Pages utilise automatiquement **Jekyll**, un générateur de sites statiques. Jekyll a une règle stricte : il **ignore** tous les dossiers et fichiers commençant par `_` (underscore).
 
 **Notre problème avec Nuxt :**
+
 Quand Nuxt génère votre site, il crée un dossier `_nuxt/` contenant tout votre JavaScript et CSS :
+
 ```
 .output/public/
   ├── _nuxt/           ← Jekyll IGNORE ce dossier !
@@ -348,24 +360,68 @@ Quand Nuxt génère votre site, il crée un dossier `_nuxt/` contenant tout votr
   └── ...
 ```
 
-**Résultat sans `.nojekyll` :**
-- Jekyll ignore `_nuxt/`
-- Vos fichiers JS/CSS ne sont pas publiés
-- Votre site s'affiche tout blanc sans styles ni interactivité ❌
+**Résultat sans `.nojekyll` sur GitHub Pages :**
+- ❌ Jekyll ignore `_nuxt/`
+- ❌ Vos fichiers JS/CSS ne sont pas publiés
+- ❌ Votre site s'affiche tout blanc sans styles ni interactivité
 
 **La solution : `.nojekyll`**
 
-En créant un fichier vide nommé `.nojekyll`, vous dites à GitHub :
+En créant un fichier vide nommé `.nojekyll`, vous dites à GitHub Pages :
 > "N'utilise PAS Jekyll, publie TOUS mes fichiers tels quels"
 
-**Résultat avec `.nojekyll` :**
-- Tous les fichiers sont publiés, y compris `_nuxt/`
-- Votre site fonctionne parfaitement ✅
+**Résultat avec `.nojekyll` sur GitHub Pages :**
+- ✅ Tous les fichiers sont publiés, y compris `_nuxt/`
+- ✅ Votre site fonctionne parfaitement
 
 **Analogie :**
 Panneau "Ne pas déranger" sur une porte de chambre d'hôtel = Jekyll ne touche à rien.
 
-**✅ Checkpoint :** Votre configuration est prête pour le déploiement.
+---
+
+#### 📊 Tableau comparatif : Où `.nojekyll` est-il nécessaire ?
+
+| Environnement | Jekyll actif ? | `.nojekyll` nécessaire ? | Raison |
+|---------------|----------------|--------------------------|--------|
+| **GitHub Pages** | ✅ Oui | ✅ **OBLIGATOIRE** | Sinon Jekyll ignore `_nuxt/` → site cassé |
+| **SFTP (production)** | ❌ Non | ❌ Inutile | Le serveur héberge les fichiers tels quels |
+| **Développement local** | ❌ Non | ❌ Inutile | `npm run dev` ne passe pas par Jekyll |
+
+---
+
+#### 💡 Puis-je supprimer `.nojekyll` de mon projet ?
+
+**Oui, SI :**
+- ✅ Vous déployez UNIQUEMENT sur SFTP (pas GitHub Pages)
+- ✅ Vous n'utilisez jamais l'environnement de test GitHub Pages
+
+**Non, SI :**
+- ❌ Vous utilisez GitHub Pages (même juste pour tester)
+- ❌ Vous suivez ce guide complet (avec 2 environnements)
+
+---
+
+#### 🎓 Exercice d'apprentissage (optionnel)
+
+Pour comprendre l'impact de `.nojekyll`, essayez ceci :
+
+1. **Supprimer temporairement** `public/.nojekyll`
+2. **Push** vers GitHub
+3. **Attendre** que le workflow GitHub Pages se termine
+4. **Visiter** votre site de test sur `https://username.github.io/projet/`
+5. **Constater** que le site est tout blanc (CSS/JS manquants)
+6. **Inspecter** (F12) → Console → Erreurs 404 sur `_nuxt/...`
+7. **Remettre** `public/.nojekyll` et re-push
+8. **Constater** que tout fonctionne à nouveau ✅
+
+**Ce que cet exercice enseigne :**
+- Comprendre l'impact réel de `.nojekyll`
+- Apprendre à déboguer avec la console du navigateur
+- Voir concrètement la différence entre "avec" et "sans"
+
+---
+
+**✅ Checkpoint :** Vous comprenez maintenant pourquoi et quand `.nojekyll` est nécessaire !
 
 ---
 
@@ -1136,7 +1192,14 @@ git push origin main
 
 **Causes possibles :**
 
-**1. Fichier `.nojekyll` manquant**
+**1. Fichier `.nojekyll` manquant (UNIQUEMENT pour GitHub Pages)**
+
+⚠️ **Ce problème concerne UNIQUEMENT GitHub Pages, pas le déploiement SFTP !**
+
+Si votre site de **test** sur GitHub Pages est blanc, mais que votre site en **production** (SFTP) fonctionne :
+→ C'est probablement le fichier `.nojekyll` qui manque.
+
+**Vérification et correction :**
 ```bash
 # Vérifier sa présence
 ls public/.nojekyll
@@ -1147,9 +1210,15 @@ touch public/.nojekyll
 
 # Puis commit et push
 git add public/.nojekyll
-git commit -m "fix: add .nojekyll file"
+git commit -m "fix: add .nojekyll file for GitHub Pages"
 git push origin main
 ```
+
+**Comment confirmer que c'est bien le problème :**
+1. Ouvrir votre site GitHub Pages (F12 pour DevTools)
+2. Onglet **Console** : Erreurs 404 sur `_nuxt/app.js` ?
+3. Onglet **Network** : Fichiers `_nuxt/*` en rouge (404) ?
+4. → Oui = `.nojekyll` manquant ✅
 
 **2. baseURL incorrect**
 - Vérifier dans `.github/workflows/deploy-github-pages.yml` ligne `NUXT_APP_BASE_URL`
@@ -1193,13 +1262,22 @@ git push origin main
 
 #### Erreurs 404 sur les assets (images, CSS, JS)
 
+**⚠️ Important :** Identifier d'abord sur quel environnement le problème se produit :
+
+- 🧪 **GitHub Pages** : Plusieurs causes possibles (voir ci-dessous)
+- 🚀 **SFTP Production** : Probablement pas lié à `.nojekyll` (voir autres causes)
+
 **Solutions à essayer dans l'ordre :**
 
-**1. Vérifier `.nojekyll`**
+**1. Vérifier `.nojekyll` (GitHub Pages uniquement)**
+
+Si les erreurs 404 concernent des fichiers dans `_nuxt/` (ex: `_nuxt/app.js`, `_nuxt/app.css`) :
 ```bash
 ls public/.nojekyll
 # Si absent, le créer (voir section ci-dessus)
 ```
+
+⚠️ **Note :** Cette cause est **impossible** sur SFTP, car les serveurs SFTP ne filtrent pas les dossiers `_`.
 
 **2. Vérifier le baseURL** (voir section "Le site s'affiche sans styles")
 
