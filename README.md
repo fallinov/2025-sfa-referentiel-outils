@@ -272,6 +272,91 @@ NUXT_APP_BASE_URL=/
 NUXT_APP_BASE_URL=/2025-sfa-nuxt-devops/
 ```
 
+### 🎨 Configuration du favicon (bonne pratique Nuxt)
+
+**⚠️ Important pour les apprentis : Où configurer le favicon**
+
+Le favicon doit être configuré dans `nuxt.config.ts`, **PAS dans `app.vue`** :
+
+#### ✅ BONNE PRATIQUE : Configuration dans `nuxt.config.ts`
+
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  app: {
+    baseURL: process.env.NUXT_APP_BASE_URL || '/',
+    head: {
+      link: [
+        {
+          rel: 'icon',
+          type: 'image/x-icon',
+          // Utilise le baseURL pour fonctionner en sous-dossier et à la racine
+          href: `${process.env.NUXT_APP_BASE_URL || ''}/favicon.ico`.replace(/\/+/g, '/')
+        }
+      ]
+    }
+  }
+})
+```
+
+**Avantages :**
+- ✅ **Centralisation** : Configuration globale au même endroit
+- ✅ **Performance** : Chargé une seule fois au build (pas à chaque render)
+- ✅ **SSR-friendly** : Appliqué côté serveur dès la génération HTML
+- ✅ **Gère baseURL** : S'adapte automatiquement aux sous-dossiers
+- ✅ **Convention Nuxt** : Recommandé par la documentation officielle
+
+#### ❌ MAUVAISE PRATIQUE : Configuration dans `app.vue`
+
+```vue
+<!-- app.vue - NE PAS FAIRE -->
+<script setup>
+useHead({
+  link: [
+    { rel: 'icon', href: '/favicon.ico' }  // ❌ Ne respecte pas baseURL
+  ]
+})
+</script>
+```
+
+**Inconvénients :**
+- ❌ **Runtime** : Exécuté à chaque rendu de composant
+- ❌ **Moins performant** : Overhead inutile
+- ❌ **Pas de baseURL** : Ne fonctionne pas en sous-dossier
+- ❌ **Doublon** : Risque de conflit avec la config globale
+
+#### 📖 Quand utiliser `useHead()` dans les composants ?
+
+`useHead()` est recommandé uniquement pour les **métadonnées dynamiques** dans les pages :
+
+```vue
+<!-- pages/blog/[slug].vue -->
+<script setup>
+const article = await fetchArticle()
+
+// ✅ BON : Métadonnées spécifiques à la page
+useHead({
+  title: article.title,
+  meta: [
+    { name: 'description', content: article.excerpt },
+    { property: 'og:image', content: article.image }
+  ]
+})
+</script>
+```
+
+#### 📋 Règle générale
+
+| Type de métadonnée | Où la configurer | Pourquoi |
+|-------------------|------------------|----------|
+| Favicon | `nuxt.config.ts` | Statique, global, rarement change |
+| Polices globales | `nuxt.config.ts` | Chargées sur toutes les pages |
+| Viewport | `nuxt.config.ts` | Config globale du site |
+| Lang attribute | `nuxt.config.ts` | Langue du site |
+| Titre de page | `useHead()` dans pages | Varie selon la page |
+| Meta description | `useHead()` dans pages | Unique par page (SEO) |
+| OG tags dynamiques | `useHead()` dans pages | Contenu partagé sur réseaux sociaux |
+
 ---
 
 ## 📁 Structure des workflows CI/CD
