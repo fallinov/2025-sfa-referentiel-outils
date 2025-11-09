@@ -17,6 +17,97 @@ Ce guide vous accompagne **étape par étape** pour créer une application Nuxt 
 
 ---
 
+## 💡 C'est quoi le DevOps ? (Introduction pour débutants)
+
+Si vous débutez, vous vous demandez peut-être : **"C'est quoi le DevOps ?"**
+
+### Définition simple
+
+**DevOps** = **Dev**elopment (Développement) + **Op**erations (Exploitation)
+
+C'est une **approche de travail** qui consiste à automatiser au maximum le processus de mise en ligne d'une application.
+
+### Le problème sans DevOps
+
+**Méthode traditionnelle (manuelle) :**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  1. Vous codez sur votre ordinateur                     │
+│  2. Vous testez manuellement                            │
+│  3. Vous compilez manuellement                          │
+│  4. Vous uploadez les fichiers via FTP                  │
+│  5. Vous vérifiez que tout fonctionne                   │
+│  6. Si problème → Recommencer depuis l'étape 1          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Problèmes :**
+- ❌ Chronophage (10-30 minutes par déploiement)
+- ❌ Risques d'oublis (oublier un fichier, une étape)
+- ❌ Erreurs humaines (mauvais dossier, mauvaise version)
+- ❌ Pas reproductible (différent à chaque fois)
+- ❌ Difficile à plusieurs développeurs
+
+### La solution DevOps (automatisée)
+
+**Méthode DevOps (ce que vous allez apprendre) :**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  1. Vous codez sur votre ordinateur                     │
+│  2. Vous faites "git push"                              │
+│  3. ✨ MAGIE : Tout le reste se fait automatiquement ✨ │
+│     ├─ Tests automatiques                               │
+│     ├─ Compilation automatique                          │
+│     ├─ Déploiement automatique                          │
+│     └─ Vérifications automatiques                       │
+│  4. Votre site est en ligne ! 🎉                        │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Avantages :**
+- ✅ Rapide (30 secondes à 2 minutes)
+- ✅ Fiable (toujours les mêmes étapes)
+- ✅ Sécurisé (moins d'erreurs humaines)
+- ✅ Reproductible (fonctionne à l'identique)
+- ✅ Collaboration facilitée (toute l'équipe utilise le même processus)
+
+### Analogie : La chaîne de montage automobile
+
+**Sans DevOps (artisanat) :**
+Chaque voiture est assemblée à la main, différemment, avec des risques d'oubli de pièces.
+
+**Avec DevOps (usine moderne) :**
+Chaîne automatisée : chaque voiture passe par les mêmes étapes, dans le même ordre, sans erreur.
+
+### Les 3 piliers du DevOps que vous allez apprendre
+
+1. **CI (Continuous Integration)** = Intégration Continue
+   - Tester automatiquement chaque modification
+   - Compiler automatiquement le projet
+
+2. **CD (Continuous Deployment)** = Déploiement Continu
+   - Déployer automatiquement après les tests
+   - Mettre en ligne sans intervention humaine
+
+3. **Infrastructure as Code**
+   - Définir l'infrastructure dans des fichiers (workflows YAML)
+   - Versionner la configuration avec Git
+
+### Concrètement, dans ce guide
+
+Vous allez apprendre à :
+- **Pousser votre code** sur GitHub (`git push`)
+- **Automatiser la compilation** avec GitHub Actions
+- **Déployer automatiquement** sur 2 environnements :
+  - **Test** (GitHub Pages) : pour vérifier avant mise en production
+  - **Production** (SFTP) : le site accessible au public
+
+**Résultat :** À la fin de ce guide, vous aurez un **workflow DevOps professionnel** fonctionnel ! 🚀
+
+---
+
 ## 📋 Prérequis
 
 Avant de commencer, assurez-vous d'avoir :
@@ -517,6 +608,199 @@ git push -u origin main
 ---
 
 ## 🤖 Étape 5 : Créer le workflow de déploiement
+
+### 📚 Comprendre le workflow CI/CD (pour débutants)
+
+Avant de créer le workflow, prenons le temps de comprendre ce qu'est un **workflow CI/CD** et comment il fonctionne.
+
+#### Qu'est-ce qu'un workflow ?
+
+**Workflow** = Ensemble d'instructions automatisées qui s'exécutent en réponse à un événement.
+
+**Analogie** : Recette de cuisine automatisée
+- **Événement déclencheur** : Vous appuyez sur "Start" (= vous faites `git push`)
+- **Ingrédients** : Votre code source
+- **Étapes** : Les instructions de la recette (installer, compiler, déployer)
+- **Résultat** : Un plat prêt (= site web en ligne)
+
+#### CI/CD en détail
+
+**CI = Continuous Integration (Intégration Continue)**
+
+```
+┌──────────────────────────────────────────────────────┐
+│  VOUS : git push                                     │
+└────────────┬─────────────────────────────────────────┘
+             │
+             ↓
+┌──────────────────────────────────────────────────────┐
+│  CI : Vérifier et intégrer votre code               │
+│  ├─ Récupérer le code                               │
+│  ├─ Installer les dépendances                       │
+│  ├─ Exécuter les tests (si configurés)              │
+│  ├─ Vérifier le style de code (linting)             │
+│  └─ Compiler/Générer le site                        │
+└────────────┬─────────────────────────────────────────┘
+             │
+             ↓ Si tout est ✅ vert
+```
+
+**Objectif CI :** S'assurer que votre code fonctionne avant de le déployer
+
+**CD = Continuous Deployment (Déploiement Continu)**
+
+```
+             ↓ Code validé par CI
+┌──────────────────────────────────────────────────────┐
+│  CD : Déployer automatiquement                      │
+│  ├─ Prendre les fichiers compilés                   │
+│  ├─ Les envoyer sur le serveur                      │
+│  └─ Rendre le site accessible                       │
+└────────────┬─────────────────────────────────────────┘
+             │
+             ↓
+┌──────────────────────────────────────────────────────┐
+│  RÉSULTAT : Site en ligne ! 🎉                      │
+└──────────────────────────────────────────────────────┘
+```
+
+**Objectif CD :** Déployer automatiquement le code validé
+
+#### Exemple concret : Votre workflow GitHub Actions
+
+Voici ce qui va se passer **automatiquement** à chaque `git push` :
+
+**1. Événement déclencheur** (`on: push`)
+```
+Vous faites : git push origin main
+→ GitHub détecte un nouveau commit
+→ GitHub Actions démarre le workflow
+```
+
+**2. Job CI : Build** (Compilation)
+```yaml
+Job "build" démarre sur une machine virtuelle Ubuntu
+  ├─ Étape 1 : Checkout (télécharger votre code)
+  ├─ Étape 2 : Setup Node.js (installer Node.js 20)
+  ├─ Étape 3 : npm ci (installer les dépendances)
+  ├─ Étape 4 : npm run generate (compiler le site)
+  └─ Étape 5 : Upload artifact (sauvegarder les fichiers compilés)
+```
+
+**3. Job CD : Deploy** (Déploiement)
+```yaml
+Job "deploy" démarre (après succès du job "build")
+  ├─ Télécharger l'artifact (fichiers compilés)
+  └─ Déployer sur GitHub Pages
+```
+
+**4. Résultat**
+```
+✅ Votre site est en ligne à : https://username.github.io/projet/
+⏱️ Temps total : 1-2 minutes
+```
+
+#### Schéma visuel complet du workflow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  DÉVELOPPEUR (vous)                                         │
+│  ├─ Modifier le code                                        │
+│  ├─ git add .                                               │
+│  ├─ git commit -m "feat: add feature"                       │
+│  └─ git push origin main                                    │
+└────────────┬────────────────────────────────────────────────┘
+             │
+             ↓ ÉVÉNEMENT DÉCLENCHEUR
+┌─────────────────────────────────────────────────────────────┐
+│  GITHUB détecte le push                                     │
+│  → Lance GitHub Actions                                     │
+└────────────┬────────────────────────────────────────────────┘
+             │
+             ↓ WORKFLOW CI/CD DÉMARRE
+┌─────────────────────────────────────────────────────────────┐
+│  MACHINE VIRTUELLE 1 : Job "build" (CI)                    │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │ Step 1 : Checkout code          ✅ (5 sec)           │ │
+│  │ Step 2 : Setup Node.js           ✅ (10 sec)          │ │
+│  │ Step 3 : npm ci                  ✅ (20 sec)          │ │
+│  │ Step 4 : npm run generate        ✅ (30 sec)          │ │
+│  │ Step 5 : Upload artifact         ✅ (5 sec)           │ │
+│  └───────────────────────────────────────────────────────┘ │
+│  → Création d'un ARTIFACT (fichiers compilés)              │
+└────────────┬────────────────────────────────────────────────┘
+             │
+             ↓ Build réussi ✅
+┌─────────────────────────────────────────────────────────────┐
+│  MACHINE VIRTUELLE 2 : Job "deploy" (CD)                   │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │ Step 1 : Download artifact       ✅ (3 sec)           │ │
+│  │ Step 2 : Deploy to GitHub Pages  ✅ (10 sec)          │ │
+│  └───────────────────────────────────────────────────────┘ │
+└────────────┬────────────────────────────────────────────────┘
+             │
+             ↓ Deploy réussi ✅
+┌─────────────────────────────────────────────────────────────┐
+│  RÉSULTAT FINAL                                             │
+│  ✅ Site en ligne : https://username.github.io/projet/      │
+│  ⏱️ Temps total : ~90 secondes                              │
+│  📧 Notification : Email de succès (optionnel)              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Concepts clés à retenir
+
+**1. Jobs (Tâches)**
+- **Job = Groupe d'étapes** qui s'exécutent sur une machine virtuelle
+- Notre workflow a **2 jobs** : `build` et `deploy`
+- Les jobs peuvent s'exécuter en **parallèle** ou **séquentiellement**
+- Ici : `deploy` attend que `build` réussisse (mot-clé `needs: build`)
+
+**2. Steps (Étapes)**
+- **Step = Action individuelle** dans un job
+- Exemples : télécharger le code, installer Node.js, compiler
+- Les steps s'exécutent **dans l'ordre**, sur la **même machine**
+
+**3. Artifacts (Artefacts)**
+- **Artifact = Archive temporaire** de fichiers
+- Permet de **transférer des fichiers entre jobs**
+- Dans notre cas : fichiers compilés du job `build` vers le job `deploy`
+
+**4. Triggers (Déclencheurs)**
+- **on: push** = À chaque push sur une branche
+- **on: pull_request** = À chaque pull request
+- **workflow_dispatch** = Déclenchement manuel
+- **schedule** = Déclenchement planifié (cron)
+
+#### Avantages de ce workflow CI/CD
+
+| Aspect | Sans CI/CD | Avec CI/CD |
+|--------|------------|------------|
+| **Vitesse** | 10-30 min (manuel) | 1-2 min (auto) |
+| **Erreurs** | Fréquentes | Rares |
+| **Reproductibilité** | Variable | Identique à chaque fois |
+| **Tests** | Souvent oubliés | Automatiques |
+| **Rollback** | Difficile | Facile (historique Git) |
+| **Collaboration** | Complexe | Fluide |
+
+#### Questions fréquentes des débutants
+
+**Q : Où s'exécute le workflow ?**
+R : Sur des **machines virtuelles** fournies gratuitement par GitHub (2000 min/mois pour les comptes gratuits)
+
+**Q : Dois-je payer pour GitHub Actions ?**
+R : Non, c'est **gratuit** pour les dépôts publics et vous avez 2000 minutes/mois pour les dépôts privés.
+
+**Q : Que se passe-t-il si le workflow échoue ?**
+R : Le déploiement est **annulé**, votre ancien site reste en ligne, et vous recevez une notification.
+
+**Q : Puis-je voir les logs ?**
+R : Oui ! Onglet **Actions** sur GitHub → Cliquer sur le workflow → Voir chaque étape en détail.
+
+**Q : Comment annuler un déploiement en cours ?**
+R : Onglet **Actions** → Cliquer sur le workflow en cours → Bouton **Cancel workflow**.
+
+---
 
 ### 5.1 Créer le fichier workflow
 
