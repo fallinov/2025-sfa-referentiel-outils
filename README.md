@@ -201,55 +201,91 @@ touch .github/workflows/deploy.yml
 Copier ce code dans `.github/workflows/deploy.yml` :
 
 ```yaml
+# Nom du workflow affiché dans l'onglet Actions de GitHub
 name: Deploy to GitHub Pages
 
+# Déclencheurs : quand ce workflow s'exécute-t-il ?
 on:
+  # Se déclenche automatiquement à chaque push sur la branche main
   push:
     branches: ["main"]
+
+  # Permet de déclencher manuellement depuis l'onglet Actions
   workflow_dispatch:
 
+# Permissions nécessaires pour déployer sur GitHub Pages
+# GitHub crée automatiquement un jeton (GITHUB_TOKEN) avec ces permissions
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read      # Lire le code du dépôt
+  pages: write        # Écrire sur GitHub Pages
+  id-token: write     # Créer un jeton d'identité (sécurité)
 
+# Gestion de la concurrence : évite les déploiements simultanés
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "pages"                  # Groupe tous les déploiements Pages ensemble
+  cancel-in-progress: false       # Ne pas annuler un déploiement en cours
 
+# Jobs : tâches à exécuter (ici 2 jobs : build et deploy)
 jobs:
+  # ========================================
+  # JOB 1 : Construire le site statique
+  # ========================================
   build:
+    # Système d'exploitation de la machine virtuelle
     runs-on: ubuntu-latest
+
+    # Liste des étapes à exécuter dans l'ordre
     steps:
+      # Étape 1 : Récupérer le code source du dépôt
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Étape 2 : Installer Node.js (nécessaire pour Nuxt)
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: 'npm'
+          node-version: "20"    # Version LTS de Node.js
+          cache: 'npm'          # Cache les dépendances npm pour accélérer
 
+      # Étape 3 : Installer les dépendances du projet
+      # npm ci = installation propre basée sur package-lock.json
       - name: Install dependencies
         run: npm ci
 
+      # Étape 4 : Générer le site statique (HTML/CSS/JS)
+      # Nuxt crée les fichiers dans .output/public/
       - name: Static HTML export with Nuxt
         run: npm run generate
         env:
+          # IMPORTANT : Définit le sous-dossier pour GitHub Pages
           NUXT_APP_BASE_URL: /<nom-du-depot>/
 
+      # Étape 5 : Créer une archive (artifact) des fichiers générés
+      # Cette archive sera utilisée par le job de déploiement
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./.output/public
+          path: ./.output/public    # Dossier contenant le site généré
 
+  # ========================================
+  # JOB 2 : Déployer sur GitHub Pages
+  # ========================================
   deploy:
+    # Configuration de l'environnement
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: github-pages                              # Nom de l'environnement
+      url: ${{ steps.deployment.outputs.page_url }}   # URL du site déployé
+
+    # Système d'exploitation
     runs-on: ubuntu-latest
+
+    # Ce job ne démarre qu'après la réussite du job 'build'
     needs: build
+
+    # Étapes du déploiement
     steps:
+      # Étape unique : Déployer l'artifact sur GitHub Pages
+      # GitHub hébergera alors le site à l'URL configurée
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
@@ -537,53 +573,91 @@ Pour déposer du courrier, une clé de boîte aux lettres suffit ! 📬
 Créer le fichier `.github/workflows/deploy-production.yml` :
 
 ```yaml
+# Nom du workflow affiché dans l'onglet Actions de GitHub
 name: Deploy to Production (SFTP)
 
+# Déclencheurs : quand ce workflow s'exécute-t-il ?
 on:
-  # Déclenché uniquement lors de la création d'un tag
+  # Déclenché uniquement lors de la création d'un tag Git
+  # Exemple : git tag v1.0.0 && git push origin v1.0.0
   push:
     tags:
-      - 'v*.*.*'  # v1.0.0, v2.1.3, etc.
+      - 'v*.*.*'  # Correspond à v1.0.0, v2.1.3, v0.5.2, etc.
 
-  # Permet le déclenchement manuel
+  # Permet le déclenchement manuel depuis l'onglet Actions
+  # Utile en cas d'urgence ou pour redéployer sans créer de tag
   workflow_dispatch:
 
+# Jobs : tâches à exécuter
 jobs:
+  # ========================================
+  # JOB : Déployer en production via SFTP
+  # ========================================
   deploy-production:
+    # Système d'exploitation de la machine virtuelle
     runs-on: ubuntu-latest
 
+    # Configuration de l'environnement de production
     environment:
-      name: production
-      url: https://votredomaine.com  # Remplacer par votre URL
+      name: production                    # Nom de l'environnement
+      url: https://votredomaine.com       # Remplacer par votre URL de production
 
+    # Liste des étapes à exécuter dans l'ordre
     steps:
+      # Étape 1 : Récupérer le code source du dépôt
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Étape 2 : Installer Node.js (nécessaire pour Nuxt)
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: 'npm'
+          node-version: "20"    # Version LTS de Node.js
+          cache: 'npm'          # Cache les dépendances npm pour accélérer
 
+      # Étape 3 : Installer les dépendances du projet
+      # npm ci = installation propre basée sur package-lock.json
       - name: Install dependencies
         run: npm ci
 
+      # Étape 4 : Générer le site statique pour la production
+      # Nuxt crée les fichiers optimisés dans .output/public/
+      # NODE_ENV=production active les optimisations (minification, etc.)
       - name: Generate static site for production
         run: npm run generate
         env:
-          NODE_ENV: production
+          NODE_ENV: production    # Mode production (optimisations activées)
 
+      # Étape 5 : Déployer les fichiers sur le serveur de production via SFTP
+      # Les identifiants sont stockés de manière sécurisée dans GitHub Secrets
       - name: Deploy to Production via SFTP
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
+          # Adresse du serveur SFTP (ex: sftp.votrehebergeur.com)
           server: ${{ secrets.SFTP_SERVER }}
+
+          # Nom d'utilisateur SFTP fourni par votre hébergeur
           username: ${{ secrets.SFTP_USERNAME }}
+
+          # Mot de passe SFTP (stocké de manière sécurisée)
           password: ${{ secrets.SFTP_PASSWORD }}
+
+          # Port de connexion SFTP (généralement 22 pour SSH/SFTP)
           port: ${{ secrets.SFTP_PORT }}
+
+          # Dossier LOCAL à uploader (le ./ final = uploader le CONTENU)
+          # ./.output/public/./ signifie : tout le contenu de .output/public/
           local_path: './.output/public/./'
+
+          # Dossier DISTANT de destination (ex: /public_html/)
           remote_path: ${{ secrets.SFTP_SERVER_DIR }}
+
+          # Utiliser SFTP uniquement (pas d'accès shell)
+          # Important pour la sécurité : limite l'accès au transfert de fichiers
           sftp_only: true
+
+          # Ne PAS supprimer les fichiers distants avant upload
+          # Évite la perte de données en cas d'erreur
           delete_remote_files: false
 ```
 
