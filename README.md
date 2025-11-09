@@ -323,6 +323,27 @@ Ces workflows sont entièrement commentés en français pour faciliter la compr�
 - Vérifier que `SFTP_SERVER_DIR` existe et que l'utilisateur a les droits d'écriture
 - Exemple : `/public_html/` ou `/www/` ou `/htdocs/`
 
+### Erreurs 404 sur les assets CSS/JS en production
+
+**Symptômes :**
+```
+Failed to load resource: the server responded with a status of 404 ()
+/_nuxt/Do7xoZ74.js:1
+/_nuxt/entry.CiD8rXcR.css:1
+```
+
+**Cause :** Les dossiers `_nuxt/`, `_fonts/` n'ont pas été uploadés sur le serveur.
+
+**Solution :**
+- Vérifier que le workflow utilise `local_path: './.output/public/./'` (avec `./` final)
+- Le `./` final est crucial pour uploader le CONTENU du dossier, pas juste les fichiers à la racine
+- Relancer le déploiement avec un nouveau tag : `git tag v1.0.1 && git push origin v1.0.1`
+
+**Comment vérifier que c'est résolu :**
+1. Ouvrir les DevTools du navigateur (F12)
+2. Onglet Network → Rafraîchir la page (Ctrl+R)
+3. Tous les fichiers `_nuxt/*.js` et `_nuxt/*.css` doivent être en statut 200 (OK)
+
 ### Voir les logs d'un déploiement qui a échoué
 
 1. Aller sur `https://github.com/<votre-compte>/2025-sfa-nuxt-devops/actions`
