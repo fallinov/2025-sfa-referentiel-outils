@@ -1,314 +1,76 @@
-# 2025 Steve Fallet - Référentiel des Outils
+# Guide DevOps : Déploiement automatisé d'une application Nuxt
 
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
 
-Application web référençant les outils utilisés en formation par Steve Fallet, développée avec [Nuxt UI](https://ui.nuxt.com).
-
-> **📝 Note importante pour les apprentis :**
->
-> Dans ce document, remplacez les variables par vos propres valeurs :
-> - `<votre-username>` → Votre nom d'utilisateur GitHub (ex: `jean-dupont`)
-> - `<nom-du-depot>` → Le nom de votre dépôt (visible dans l'URL GitHub)
->
-> **Exemple avec GitHub Classroom :**
-> - URL du dépôt : `https://github.com/jean-dupont/2025-sfa-nuxt-devops-jean-dupont`
-> - Alors : `<votre-username>` = `jean-dupont`
-> - Et : `<nom-du-depot>` = `2025-sfa-nuxt-devops-jean-dupont`
-> - GitHub Pages : `https://jean-dupont.github.io/2025-sfa-nuxt-devops-jean-dupont/`
-
-## 📚 Table des matières
-
-- [Installation](#installation)
-- [Développement](#développement)
-- [Stratégie de déploiement DevOps](#-stratégie-de-déploiement-devops)
-- [Guide pour les apprentis](#-guide-pour-les-apprentis)
-- [Configuration technique](#configuration-technique)
+Ce guide vous accompagne **étape par étape** pour créer une application Nuxt avec Nuxt UI et mettre en place un système de déploiement automatisé (DevOps).
 
 ---
 
-## Installation
+## 🎯 Objectifs pédagogiques
 
-Installer les dépendances du projet :
+À la fin de ce guide, vous saurez :
+
+1. ✅ Créer un projet Nuxt avec Nuxt UI
+2. ✅ Configurer un déploiement automatique sur GitHub Pages (environnement de test)
+3. ✅ Mettre en place un workflow CI/CD avec GitHub Actions
+4. ✅ (Optionnel) Déployer en production via SFTP
+
+---
+
+## 📋 Prérequis
+
+Avant de commencer, assurez-vous d'avoir :
+
+- ✅ **Node.js 20+** installé ([télécharger ici](https://nodejs.org/))
+- ✅ **Git** installé et configuré
+- ✅ Un **compte GitHub** actif
+- ✅ Un **éditeur de code** (VS Code recommandé)
+
+---
+
+## 🚀 Étape 1 : Créer un nouveau projet Nuxt + Nuxt UI
+
+### 1.1 Initialiser le projet
 
 ```bash
+# Créer un nouveau projet Nuxt avec Nuxt UI
+npx nuxi@latest init mon-projet-nuxt -t ui
+
+# Aller dans le dossier du projet
+cd mon-projet-nuxt
+
+# Installer les dépendances
 npm install
 ```
 
----
-
-## Développement
-
-Démarrer le serveur de développement sur `http://localhost:3000` :
-
-```bash
-npm run dev
-```
-
-### Autres commandes utiles
-
-```bash
-# Vérifier le code (linting)
-npm run lint
-
-# Vérifier les types TypeScript
-npm run typecheck
-
-# Générer le site statique
-npm run generate
-
-# Prévisualiser la version de production localement
-npm run preview
-```
-
----
-
-## 🚀 Stratégie de déploiement DevOps
-
-Ce projet utilise une approche **trunk-based development** avec déploiements automatisés vers deux environnements distincts.
-
-### 📊 Les deux environnements
-
-| Environnement | URL | Déclencheur | Méthode |
-|---------------|-----|-------------|---------|
-| **🧪 Test (Staging)** | `https://<votre-username>.github.io/<nom-du-depot>/` | Push sur `main` | GitHub Pages |
-| **🚀 Production** | Votre domaine de production | Tag ou Release | SFTP |
-
-### 🔄 Workflow de développement
-
-```
-┌─────────────────────────────────────────────────────┐
-│                 Cycle de développement               │
-├─────────────────────────────────────────────────────┤
-│                                                      │
-│  1️⃣  Développement local                             │
-│      ↓ npm run dev                                   │
-│      ↓ Modifications du code                        │
-│      ↓                                               │
-│  2️⃣  Commit et push vers GitHub                      │
-│      ↓ git add . && git commit -m "..."             │
-│      ↓ git push origin main                         │
-│      ↓                                               │
-│  3️⃣  Déploiement automatique TEST                    │
-│      → GitHub Pages (staging)                       │
-│      → URL de test accessible                       │
-│      ↓                                               │
-│  4️⃣  Tests et validation                             │
-│      ↓ Vérification par l'équipe                    │
-│      ↓                                               │
-│  5️⃣  Mise en production (au choix)                   │
-│      → OPTION A : Tag rapide                        │
-│      → OPTION B : Release documentée                │
-│      ↓                                               │
-│  6️⃣  Déploiement automatique PRODUCTION              │
-│      → Serveur SFTP                                 │
-│      → Site public accessible                       │
-│                                                      │
-└─────────────────────────────────────────────────────┘
-```
-
----
-
-## 🎓 Guide pour les apprentis
-
-### Étape 1 : Développer et tester localement
+### 1.2 Tester en local
 
 ```bash
 # Lancer le serveur de développement
 npm run dev
-
-# Modifier le code dans votre éditeur
-# Vérifier les changements sur http://localhost:3000
 ```
 
-### Étape 2 : Publier sur l'environnement de test
+Ouvrir http://localhost:3000 dans votre navigateur.
 
-```bash
-# Ajouter vos modifications
-git add .
-
-# Créer un commit avec un message clair
-git commit -m "feat: ajouter nouvelle fonctionnalité"
-
-# Envoyer vers GitHub
-git push origin main
-```
-
-✅ **Résultat :** Le site est automatiquement déployé sur GitHub Pages (test)
-- Vérifier le déploiement : `https://github.com/<votre-username>/<nom-du-depot>/actions`
-- Tester le site : `https://<votre-username>.github.io/<nom-du-depot>/`
-
-### Étape 3 : Mettre en production
-
-Une fois que tout fonctionne bien en test, vous avez **deux méthodes** pour publier en production :
-
-#### 🏃 **MÉTHODE A : Déploiement rapide avec un tag** (recommandé pour usage quotidien)
-
-```bash
-# Créer un tag de version (suivre le format v1.0.0)
-git tag v1.0.0
-
-# Envoyer le tag vers GitHub
-git push origin v1.0.0
-```
-
-✅ **Résultat :** Déploiement automatique sur le serveur de production via SFTP
-
-**Quand utiliser cette méthode :**
-- ✅ Corrections de bugs
-- ✅ Petites améliorations
-- ✅ Déploiements fréquents
-- ✅ Vous voulez aller vite
+**✅ Checkpoint :** Vous devez voir l'interface Nuxt UI par défaut.
 
 ---
 
-#### 📖 **MÉTHODE B : Déploiement documenté avec une release** (recommandé pour versions importantes)
+## ⚙️ Étape 2 : Configuration minimale pour le déploiement
 
-```bash
-# 1. Créer et envoyer un tag (si pas déjà fait)
-git tag v2.0.0
-git push origin v2.0.0
+### 2.1 Configurer le baseURL pour GitHub Pages
 
-# 2. Créer une release avec documentation
-# Option 1 : Via l'interface GitHub
-#   → Aller sur https://github.com/<votre-username>/<nom-du-depot>/releases/new
-#   → Sélectionner le tag v2.0.0
-#   → Ajouter un titre et des notes de version
-#   → Cliquer sur "Publish release"
-
-# Option 2 : Via la ligne de commande (GitHub CLI)
-gh release create v2.0.0 \
-  --title "Version 2.0.0 - Nouvelle interface" \
-  --notes "## 🎉 Nouveautés
-- Nouvelle interface utilisateur
-- Amélioration des performances
-- Correction de 5 bugs
-
-## 📝 Détails techniques
-- Migration vers Nuxt 4
-- Ajout de nouveaux composants"
-```
-
-✅ **Résultat :**
-- Déploiement automatique sur le serveur de production via SFTP
-- **BONUS :** Page de release publique avec changelog et documentation
-
-**Quand utiliser cette méthode :**
-- ✅ Versions majeures (v1.0.0, v2.0.0)
-- ✅ Nouvelles fonctionnalités importantes
-- ✅ Communication publique nécessaire
-- ✅ Documentation pour les utilisateurs
-
----
-
-### 📋 Comprendre les numéros de version (Semantic Versioning)
-
-Format : `vMAJEUR.MINEUR.PATCH`
-
-```
-v1.2.3
-│ │ │
-│ │ └─── PATCH : Corrections de bugs (1.2.3 → 1.2.4)
-│ └───── MINEUR : Nouvelles fonctionnalités (1.2.0 → 1.3.0)
-└─────── MAJEUR : Changements incompatibles (1.0.0 → 2.0.0)
-```
-
-**Exemples :**
-- `v0.0.1` → Première version de test
-- `v1.0.0` → Première version stable
-- `v1.1.0` → Ajout d'une nouvelle page
-- `v1.1.1` → Correction d'un bug
-- `v2.0.0` → Refonte complète de l'interface
-
----
-
-### 🔍 Vérifier le statut des déploiements
-
-#### Voir l'historique des déploiements :
-👉 `https://github.com/<votre-username>/<nom-du-depot>/actions`
-
-#### Voir toutes les versions publiées :
-👉 `https://github.com/<votre-username>/<nom-du-depot>/releases`
-
-#### Voir tous les tags créés :
-```bash
-git tag -l
-```
-
----
-
-## Configuration technique
-
-### 🎨 Scripts de génération disponibles
-
-```bash
-# Générer pour GitHub Pages (avec sous-dossier)
-npm run generate:github
-
-# Générer pour production (à la racine du domaine)
-npm run generate:prod
-
-# Génération standard (utilise variable d'environnement)
-npm run generate
-```
-
-### 🔐 Configuration des secrets GitHub (pour l'enseignant)
-
-Pour que le déploiement SFTP fonctionne, configurer ces secrets dans GitHub :
-
-1. Aller sur : `Settings` → `Secrets and variables` → `Actions`
-2. Ajouter les secrets suivants :
-
-| Secret | Description | Exemple |
-|--------|-------------|---------|
-| `SFTP_SERVER` | Adresse du serveur SFTP | `sftp.votredomaine.com` |
-| `SFTP_USERNAME` | Nom d'utilisateur SFTP | `votre_user` |
-| `SFTP_PASSWORD` | Mot de passe SFTP | `VotreMdP123!` |
-| `SFTP_SERVER_DIR` | Dossier de destination | `/public_html/` |
-| `SFTP_PORT` | Port SFTP (optionnel) | `22` (défaut pour SFTP) |
-
-**Note importante :** Ce projet utilise **SFTP** (SSH File Transfer Protocol sur port 22), pas FTP/FTPS.
-Assurez-vous que votre hébergeur supporte SFTP et que vous utilisez le port 22 (port SSH standard).
-
-### 🌐 Variables d'environnement
-
-Le projet utilise des variables d'environnement pour gérer les différents déploiements :
-
-```bash
-# Par défaut (production à la racine)
-NUXT_APP_BASE_URL=/
-
-# Pour GitHub Pages (sous-dossier)
-NUXT_APP_BASE_URL=/<nom-du-depot>/
-```
-
-**⚠️ Configuration pour les apprentis :**
-
-Si votre dépôt a un nom différent (ex: `2025-sfa-nuxt-devops-jean-dupont`), vous devez modifier le workflow GitHub Pages :
-
-```yaml
-# .github/workflows/deploy-github-pages.yml
-# Ligne 80 environ :
-env:
-  NUXT_APP_BASE_URL: /<nom-du-depot>/  # ← Remplacez par le nom de votre dépôt
-```
-
-**Exemple :** Si votre dépôt s'appelle `2025-sfa-nuxt-devops-jean-dupont` :
-```yaml
-env:
-  NUXT_APP_BASE_URL: /2025-sfa-nuxt-devops-jean-dupont/
-```
-
-### 🎨 Configuration du favicon (bonne pratique Nuxt)
-
-**⚠️ Important pour les apprentis : Où configurer le favicon**
-
-Le favicon doit être configuré dans `nuxt.config.ts`, **PAS dans `app.vue`** :
-
-#### ✅ BONNE PRATIQUE : Configuration dans `nuxt.config.ts`
+Modifier `nuxt.config.ts` :
 
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/ui'
+  ],
+
+  // Configuration pour GitHub Pages (sous-dossier)
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
     head: {
@@ -316,172 +78,284 @@ export default defineNuxtConfig({
         {
           rel: 'icon',
           type: 'image/x-icon',
-          // Utilise le baseURL pour fonctionner en sous-dossier et à la racine
           href: `${process.env.NUXT_APP_BASE_URL || ''}/favicon.ico`.replace(/\/+/g, '/')
         }
       ]
+    }
+  },
+
+  devtools: {
+    enabled: true
+  },
+
+  css: ['~/assets/css/main.css'],
+
+  compatibilityDate: '2025-01-15',
+
+  eslint: {
+    config: {
+      stylistic: {
+        commaDangle: 'never',
+        braceStyle: '1tbs'
+      }
     }
   }
 })
 ```
 
-**Avantages :**
-- ✅ **Centralisation** : Configuration globale au même endroit
-- ✅ **Performance** : Chargé une seule fois au build (pas à chaque render)
-- ✅ **SSR-friendly** : Appliqué côté serveur dès la génération HTML
-- ✅ **Gère baseURL** : S'adapte automatiquement aux sous-dossiers
-- ✅ **Convention Nuxt** : Recommandé par la documentation officielle
+**💡 Pourquoi cette configuration ?**
+- `baseURL` : Permet de déployer dans un sous-dossier (ex: `/mon-projet/`)
+- Variable d'environnement : Flexible pour différents environnements (local, test, production)
+- Favicon avec baseURL : Fonctionne partout
 
-#### ❌ MAUVAISE PRATIQUE : Configuration dans `app.vue`
+### 2.2 Ajouter `.nojekyll` pour GitHub Pages
 
-```vue
-<!-- app.vue - NE PAS FAIRE -->
-<script setup>
-useHead({
-  link: [
-    { rel: 'icon', href: '/favicon.ico' }  // ❌ Ne respecte pas baseURL
-  ]
-})
-</script>
+```bash
+# Créer le dossier public s'il n'existe pas
+mkdir -p public
+
+# Créer le fichier .nojekyll (empêche Jekyll de traiter les fichiers)
+touch public/.nojekyll
 ```
 
-**Inconvénients :**
-- ❌ **Runtime** : Exécuté à chaque rendu de composant
-- ❌ **Moins performant** : Overhead inutile
-- ❌ **Pas de baseURL** : Ne fonctionne pas en sous-dossier
-- ❌ **Doublon** : Risque de conflit avec la config globale
-
-#### 📖 Quand utiliser `useHead()` dans les composants ?
-
-`useHead()` est recommandé uniquement pour les **métadonnées dynamiques** dans les pages :
-
-```vue
-<!-- pages/blog/[slug].vue -->
-<script setup>
-const article = await fetchArticle()
-
-// ✅ BON : Métadonnées spécifiques à la page
-useHead({
-  title: article.title,
-  meta: [
-    { name: 'description', content: article.excerpt },
-    { property: 'og:image', content: article.image }
-  ]
-})
-</script>
-```
-
-#### 📋 Règle générale
-
-| Type de métadonnée | Où la configurer | Pourquoi |
-|-------------------|------------------|----------|
-| Favicon | `nuxt.config.ts` | Statique, global, rarement change |
-| Polices globales | `nuxt.config.ts` | Chargées sur toutes les pages |
-| Viewport | `nuxt.config.ts` | Config globale du site |
-| Lang attribute | `nuxt.config.ts` | Langue du site |
-| Titre de page | `useHead()` dans pages | Varie selon la page |
-| Meta description | `useHead()` dans pages | Unique par page (SEO) |
-| OG tags dynamiques | `useHead()` dans pages | Contenu partagé sur réseaux sociaux |
+**✅ Checkpoint :** Votre configuration est prête pour le déploiement.
 
 ---
 
-## 📁 Structure des workflows CI/CD
+## 📦 Étape 3 : Créer le dépôt GitHub
+
+### 3.1 Initialiser Git
+
+```bash
+# Initialiser le dépôt Git (si pas déjà fait)
+git init
+
+# Ajouter tous les fichiers
+git add .
+
+# Premier commit
+git commit -m "feat: initial commit with Nuxt UI"
+```
+
+### 3.2 Créer le dépôt sur GitHub
+
+1. Aller sur https://github.com/new
+2. Nom du dépôt : `mon-projet-nuxt` (ou autre)
+3. **Ne pas** initialiser avec README, .gitignore, ou licence
+4. Cliquer sur "Create repository"
+
+### 3.3 Pousser le code
+
+```bash
+# Lier le dépôt local au dépôt distant
+git remote add origin https://github.com/<votre-username>/<nom-du-depot>.git
+
+# Pousser le code
+git branch -M main
+git push -u origin main
+```
+
+**✅ Checkpoint :** Votre code est sur GitHub.
+
+---
+
+## 🔄 Étape 4 : Configurer GitHub Pages
+
+### 4.1 Activer GitHub Pages
+
+1. Aller dans votre dépôt sur GitHub
+2. Cliquer sur **Settings** (Paramètres)
+3. Dans le menu de gauche : **Pages**
+4. Source : **GitHub Actions** (pas "Deploy from a branch")
+
+**💡 Note :** GitHub Actions permet un déploiement automatisé via workflow.
+
+---
+
+## 🤖 Étape 5 : Créer le workflow de déploiement
+
+### 5.1 Créer le fichier workflow
+
+```bash
+# Créer la structure des dossiers
+mkdir -p .github/workflows
+
+# Créer le fichier workflow
+touch .github/workflows/deploy.yml
+```
+
+### 5.2 Configuration du workflow
+
+Copier ce code dans `.github/workflows/deploy.yml` :
+
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Static HTML export with Nuxt
+        run: npm run generate
+        env:
+          NUXT_APP_BASE_URL: /<nom-du-depot>/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./.output/public
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+**⚠️ IMPORTANT :** Remplacer `<nom-du-depot>` par le nom de votre dépôt GitHub.
+
+**Exemple :** Si votre dépôt s'appelle `mon-projet-nuxt` :
+```yaml
+NUXT_APP_BASE_URL: /mon-projet-nuxt/
+```
+
+### 5.3 Commit et push
+
+```bash
+# Ajouter le workflow
+git add .github/workflows/deploy.yml public/.nojekyll
+
+# Commit
+git commit -m "ci: add GitHub Pages deployment workflow"
+
+# Push
+git push origin main
+```
+
+**✅ Checkpoint :** Le workflow se déclenche automatiquement !
+
+---
+
+## 🎉 Étape 6 : Vérifier le déploiement
+
+### 6.1 Suivre le déploiement
+
+1. Aller sur https://github.com/`<votre-username>`/`<nom-du-depot>`/actions
+2. Cliquer sur le workflow en cours d'exécution
+3. Attendre que toutes les étapes soient ✅ vertes
+
+### 6.2 Accéder au site
+
+URL de votre site : `https://<votre-username>.github.io/<nom-du-depot>/`
+
+**Exemple :** `https://jean-dupont.github.io/mon-projet-nuxt/`
+
+**✅ Félicitations !** Votre site est en ligne et se déploie automatiquement à chaque push sur `main`.
+
+---
+
+## 🔧 Workflow de développement
+
+Maintenant que tout est configuré, voici le cycle de travail :
 
 ```
-.github/workflows/
-├── deploy-github-pages.yml  # Déploiement automatique sur GitHub Pages (test)
-└── deploy-sftp.yml           # Déploiement automatique via SFTP (production)
+┌──────────────────────────────────────┐
+│  1. Développer en local              │
+│     npm run dev                      │
+│                                      │
+│  2. Tester les changements           │
+│     http://localhost:3000            │
+│                                      │
+│  3. Commit + Push                    │
+│     git add .                        │
+│     git commit -m "feat: ..."        │
+│     git push origin main             │
+│                                      │
+│  4. Déploiement automatique ! 🚀     │
+│     GitHub Actions génère le site    │
+│     GitHub Pages publie le site      │
+└──────────────────────────────────────┘
 ```
-
-Ces workflows sont entièrement commentés en français pour faciliter la compréhension.
 
 ---
 
 ## 🆘 Dépannage
 
-### Le déploiement ne se déclenche pas
+### Le déploiement échoue
 
-**Vérifier que :**
-- ✅ Le tag est bien poussé sur GitHub : `git ls-remote --tags origin`
-- ✅ Les secrets SFTP sont configurés dans GitHub Settings
-- ✅ Le format du tag est correct : `v1.0.0` (pas `1.0.0`)
+**Vérifier :**
+1. ✅ `NUXT_APP_BASE_URL` correspond au nom de votre dépôt
+2. ✅ GitHub Pages est activé (Settings → Pages → Source: GitHub Actions)
+3. ✅ Le fichier `.nojekyll` existe dans `public/`
 
-### Erreur "Timeout (control socket)" lors du déploiement SFTP
+### Le site s'affiche sans styles
 
-**Causes possibles :**
-
-1. **Le serveur n'utilise pas le port 22 (SFTP standard)**
-   - Solution : Vérifier le port SFTP avec votre hébergeur
-   - Configurer `SFTP_PORT` dans GitHub Secrets si différent de 22
-
-2. **Le serveur utilise FTP/FTPS au lieu de SFTP**
-   - SFTP ≠ FTPS (protocoles différents !)
-   - SFTP = SSH File Transfer Protocol (port 22, sécurisé)
-   - FTP/FTPS = File Transfer Protocol (ports 21/990)
-   - Solution : Demander à votre hébergeur s'il supporte SFTP
-
-3. **Firewall ou restrictions réseau**
-   - Certains hébergeurs bloquent les connexions GitHub Actions
-   - Solution : Vérifier avec votre hébergeur
-
-4. **Credentials incorrects**
-   - Vérifier `SFTP_USERNAME` et `SFTP_PASSWORD` dans GitHub Secrets
-   - Tester la connexion manuellement avec FileZilla ou un autre client SFTP
-
-### Erreur "Permission denied" lors du déploiement
+**Cause :** Le `baseURL` est incorrect.
 
 **Solution :**
-- Vérifier que `SFTP_SERVER_DIR` existe et que l'utilisateur a les droits d'écriture
-- Exemple : `/public_html/` ou `/www/` ou `/htdocs/`
+1. Vérifier `NUXT_APP_BASE_URL` dans `.github/workflows/deploy.yml`
+2. Le format doit être : `/nom-du-depot/` (avec les `/` au début et à la fin)
 
-### Erreurs 404 sur les assets CSS/JS en production
+### Erreurs 404 sur les assets
 
-**Symptômes :**
-```
-Failed to load resource: the server responded with a status of 404 ()
-/_nuxt/Do7xoZ74.js:1
-/_nuxt/entry.CiD8rXcR.css:1
-```
-
-**Cause :** Les dossiers `_nuxt/`, `_fonts/` n'ont pas été uploadés sur le serveur.
-
-**Solution :**
-- Vérifier que le workflow utilise `local_path: './.output/public/./'` (avec `./` final)
-- Le `./` final est crucial pour uploader le CONTENU du dossier, pas juste les fichiers à la racine
-- Relancer le déploiement avec un nouveau tag : `git tag v1.0.1 && git push origin v1.0.1`
-
-**Comment vérifier que c'est résolu :**
-1. Ouvrir les DevTools du navigateur (F12)
-2. Onglet Network → Rafraîchir la page (Ctrl+R)
-3. Tous les fichiers `_nuxt/*.js` et `_nuxt/*.css` doivent être en statut 200 (OK)
-
-### Voir les logs d'un déploiement qui a échoué
-
-1. Aller sur `https://github.com/<votre-username>/<nom-du-depot>/actions`
-2. Cliquer sur le workflow qui a échoué
-3. Lire les logs pour identifier l'erreur
-4. Chercher les mots-clés : "Error", "Failed", "Timeout"
+**Solution :** Vérifier que le fichier `.nojekyll` existe dans `public/`
 
 ---
 
-## 📖 Ressources
+## 📚 Ressources complémentaires
 
 - [Documentation Nuxt](https://nuxt.com/docs)
 - [Documentation Nuxt UI](https://ui.nuxt.com)
 - [Guide GitHub Actions](https://docs.github.com/en/actions)
-- [Semantic Versioning](https://semver.org/lang/fr/)
-- [Trunk-Based Development](https://trunkbaseddevelopment.com/)
+- [Guide GitHub Pages](https://docs.github.com/en/pages)
 
 ---
 
-## 🤝 Contribution
+## 🎓 Aller plus loin
 
-Ce projet est utilisé dans un cadre pédagogique. Les apprentis sont encouragés à :
-1. Créer des branches pour leurs fonctionnalités
-2. Tester localement avant de pusher
-3. Faire des commits clairs et descriptifs
-4. Utiliser les pull requests pour les changements importants
+### Option 1 : Déploiement en production via SFTP
+
+Pour déployer sur un serveur de production (hébergement web), consulter le guide avancé sur le déploiement SFTP.
+
+### Option 2 : Ajout de tests automatisés
+
+Intégrer des tests dans le workflow CI/CD pour valider le code avant le déploiement.
+
+### Option 3 : Environnements multiples
+
+Créer plusieurs environnements (dev, staging, production) avec des workflows différents.
 
 ---
 
-**Made with ❤️ for Steve Fallet apprentices**
+**Made with ❤️ for apprentis développeurs**

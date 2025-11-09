@@ -5,13 +5,11 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck",
-    "generate": "nuxt generate",
-    "generate:github": "NUXT_APP_BASE_URL=/2025-sfa-nuxt-devops/ nuxt generate",
-    "generate:prod": "nuxt generate"
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.71",
