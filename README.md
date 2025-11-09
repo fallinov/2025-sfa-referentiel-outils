@@ -13,7 +13,7 @@ Ce guide vous accompagne **étape par étape** pour créer une application Nuxt 
 1. ✅ Créer un projet Nuxt avec Nuxt UI
 2. ✅ Configurer un déploiement automatique sur GitHub Pages (environnement de test)
 3. ✅ Mettre en place un workflow CI/CD avec GitHub Actions
-4. ✅ (Optionnel) Déployer en production via SFTP
+4. ✅ Déployer en production via SFTP sur un hébergement web
 
 ---
 
@@ -21,22 +21,22 @@ Ce guide vous accompagne **étape par étape** pour créer une application Nuxt 
 
 Avant de commencer, assurez-vous d'avoir :
 
-### Pour tous les apprentis :
+### Outils de développement :
 - ✅ **Node.js 20+** installé ([télécharger ici](https://nodejs.org/))
 - ✅ **Git** installé et configuré
 - ✅ Un **compte GitHub** actif
 - ✅ Un **éditeur de code** (VS Code recommandé)
 
-### Pour le déploiement en production (optionnel) :
-- ✅ Un **hébergement web** avec accès SFTP/FTP
+### Hébergement web (pour le déploiement en production) :
+- ✅ Un **hébergement web** avec accès SFTP
 - ✅ Les **identifiants de connexion** fournis par votre hébergeur :
   - Adresse du serveur (ex: `sftp.votredomaine.com`)
   - Nom d'utilisateur
   - Mot de passe
-  - Port de connexion (généralement 22 pour SFTP, 21 pour FTP)
+  - Port de connexion (généralement 22 pour SFTP)
   - Chemin du dossier web (ex: `/public_html/` ou `/www/`)
 
-**💡 Note :** Le déploiement en production est optionnel. Vous pouvez d'abord maîtriser le déploiement sur GitHub Pages.
+**⚠️ Important :** Ces identifiants vous seront fournis par votre hébergeur dans l'email d'activation de votre compte.
 
 ---
 
@@ -293,11 +293,14 @@ URL de votre site : `https://<votre-username>.github.io/<nom-du-depot>/`
 
 **Exemple :** `https://jean-dupont.github.io/mon-projet-nuxt/`
 
-**✅ Félicitations !** Votre site est en ligne et se déploie automatiquement à chaque push sur `main`.
+**✅ Félicitations !** Votre site de **test** est en ligne et se déploie automatiquement à chaque push sur `main`.
+
+**📍 Vous êtes ici :** Environnement de test configuré
+**➡️ Prochaine étape :** Configurer le déploiement en production (Étape 7)
 
 ---
 
-## 🔧 Workflow de développement
+## 🔧 Workflow de développement (test uniquement)
 
 Maintenant que tout est configuré, voici le cycle de travail :
 
@@ -354,20 +357,18 @@ Maintenant que tout est configuré, voici le cycle de travail :
 
 ---
 
-## 🎓 Aller plus loin
-
 ---
 
-## 🚀 Étape 7 (Optionnel) : Déploiement en production via SFTP
+## 🚀 Étape 7 : Déploiement en production via SFTP
 
-Cette étape vous permet de déployer automatiquement votre site sur un hébergement web professionnel.
+Cette étape finalise votre workflow DevOps en déployant automatiquement votre site sur un hébergement web professionnel.
 
-### 7.1 Prérequis
+### 7.1 Vérifier les prérequis
 
-Avant de commencer, vous devez avoir :
+Assurez-vous d'avoir reçu de votre hébergeur :
 
 - ✅ Un hébergement web avec accès SFTP
-- ✅ Les identifiants fournis par votre hébergeur
+- ✅ L'email d'activation contenant vos identifiants de connexion
 
 **📋 Informations nécessaires :**
 
@@ -574,6 +575,25 @@ v1.2.3
 - [Guide GitHub Actions](https://docs.github.com/en/actions)
 - [Guide GitHub Pages](https://docs.github.com/en/pages)
 - [Semantic Versioning](https://semver.org/lang/fr/)
+
+---
+
+## ✅ Récapitulatif du guide complet
+
+Vous avez maintenant mis en place :
+
+1. ✅ **Projet Nuxt + Nuxt UI** fonctionnel
+2. ✅ **Environnement de test** (GitHub Pages) avec déploiement automatique
+3. ✅ **Environnement de production** (SFTP) avec déploiement par tags
+4. ✅ **Workflow DevOps complet** : développement → test → production
+5. ✅ **Bonnes pratiques** : CI/CD, Semantic Versioning, gestion des secrets
+
+**🎓 Compétences acquises :**
+- Configuration d'un projet Nuxt moderne
+- Déploiement automatisé avec GitHub Actions
+- Gestion de deux environnements (test/production)
+- Utilisation de Git et des tags de version
+- Sécurisation des credentials avec GitHub Secrets
 
 ---
 
