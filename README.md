@@ -55,6 +55,23 @@ cd mon-projet-nuxt
 npm install
 ```
 
+**💡 Comprendre la commande :**
+
+```
+npx nuxi@latest init mon-projet-nuxt -t ui
+│   │     │      │      │                │
+│   │     │      │      │                └─ Template (modèle) avec Nuxt UI pré-installé
+│   │     │      │      └─────────────────── Nom de votre projet (à personnaliser)
+│   │     │      └────────────────────────── Initialiser (= créer) un nouveau projet
+│   │     └───────────────────────────────── Toujours utiliser la dernière version
+│   └─────────────────────────────────────── Outil officiel pour créer un projet Nuxt
+└─────────────────────────────────────────── Exécute un outil sans l'installer (comme "essayer avant d'acheter")
+```
+
+**Différence npx vs npm :**
+- **`npm install`** : Installe des packages dans votre projet
+- **`npx`** : Exécute un outil temporairement sans installation permanente
+
 ### 1.2 Tester en local
 
 ```bash
@@ -155,6 +172,65 @@ export default defineNuxtConfig({
 - Variable d'environnement : Flexible pour différents environnements (local, test, production)
 - Favicon avec baseURL : Fonctionne partout
 
+#### 🔑 Comprendre les variables d'environnement
+
+**Qu'est-ce que `process.env` ?**
+
+**Analogie** : Comme les paramètres de votre smartphone (luminosité, volume) qui changent selon le contexte (dehors vs intérieur).
+
+```typescript
+baseURL: process.env.NUXT_APP_BASE_URL || '/',
+         └──────────┬──────────┘            └─┬─┘
+              Lire le paramètre          Valeur par défaut
+```
+
+**Explication :**
+- **`process.env`** = Accès aux paramètres de configuration de l'application
+- **`NUXT_APP_BASE_URL`** = Nom du paramètre personnalisé (créé par vous)
+- **`||`** = "OU" en JavaScript : Si pas défini, utiliser la valeur après
+- **`'/'`** = Valeur par défaut (racine du site)
+
+**Exemple concret selon l'environnement :**
+
+| Environnement | NUXT_APP_BASE_URL défini ? | baseURL utilisé |
+|---------------|---------------------------|-----------------|
+| **Développement local** | ❌ Non | `'/'` (par défaut) |
+| **GitHub Pages** | ✅ Oui = `/mon-projet/` | `/mon-projet/` |
+| **Production SFTP** | ❌ Non | `'/'` (par défaut) |
+
+**Où définir ces variables ?**
+- En développement : Pas besoin, utilise la valeur par défaut
+- Dans les workflows : Section `env:` (vous le verrez à l'Étape 5)
+- Localement (tests) : Créer un fichier `.env` (optionnel)
+
+#### 📐 Comprendre baseURL avec exemples visuels
+
+**Le baseURL définit le "chemin de base" de votre application**
+
+**Cas 1 : baseURL = '/' (racine du domaine)**
+```
+https://votredomaine.com/              ← Page d'accueil
+https://votredomaine.com/about         ← Page "à propos"
+https://votredomaine.com/images/logo.png
+```
+
+**Cas 2 : baseURL = '/mon-projet/' (sous-dossier)**
+```
+https://votredomaine.com/mon-projet/              ← Page d'accueil
+https://votredomaine.com/mon-projet/about         ← Page "à propos"
+https://votredomaine.com/mon-projet/images/logo.png
+```
+
+**⚠️ Les `/` au début ET à la fin sont OBLIGATOIRES :**
+```
+✅ '/mon-projet/'  → Fonctionne correctement
+❌ 'mon-projet/'   → Liens cassés (/ manquant au début)
+❌ '/mon-projet'   → Liens cassés (/ manquant à la fin)
+❌ 'mon-projet'    → Liens cassés (tout manque)
+```
+
+**Règle à retenir** : Toujours entourer de `/` au début ET à la fin pour un sous-dossier.
+
 ### 2.2 Ajouter `.nojekyll` pour GitHub Pages
 
 ```bash
@@ -165,11 +241,170 @@ mkdir -p public
 touch public/.nojekyll
 ```
 
+**🚫 Pourquoi créer `.nojekyll` ?**
+
+**Le problème :**
+GitHub Pages utilise automatiquement **Jekyll**, un générateur de sites statiques. Jekyll a une règle : il ignore tous les dossiers et fichiers commençant par `_` (underscore).
+
+**Notre problème avec Nuxt :**
+Quand Nuxt génère votre site, il crée un dossier `_nuxt/` contenant tout votre JavaScript et CSS :
+```
+.output/public/
+  ├── _nuxt/           ← Jekyll IGNORE ce dossier !
+  │   ├── app.js       ← JavaScript de votre site
+  │   └── app.css      ← Styles de votre site
+  ├── index.html
+  └── ...
+```
+
+**Résultat sans `.nojekyll` :**
+- Jekyll ignore `_nuxt/`
+- Vos fichiers JS/CSS ne sont pas publiés
+- Votre site s'affiche tout blanc sans styles ni interactivité ❌
+
+**La solution : `.nojekyll`**
+
+En créant un fichier vide nommé `.nojekyll`, vous dites à GitHub :
+> "N'utilise PAS Jekyll, publie TOUS mes fichiers tels quels"
+
+**Résultat avec `.nojekyll` :**
+- Tous les fichiers sont publiés, y compris `_nuxt/`
+- Votre site fonctionne parfaitement ✅
+
+**Analogie :**
+Panneau "Ne pas déranger" sur une porte de chambre d'hôtel = Jekyll ne touche à rien.
+
 **✅ Checkpoint :** Votre configuration est prête pour le déploiement.
 
 ---
 
 ## 📦 Étape 3 : Créer le dépôt GitHub
+
+### 📖 Git pour débutants : Comprendre les bases
+
+Si vous débutez avec Git, voici les concepts essentiels expliqués simplement.
+
+#### 🌐 Git local vs Git distant (GitHub)
+
+**Analogie** : Votre projet Git = Deux versions de votre carnet de notes
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  VERSION LOCALE (votre ordinateur)                          │
+│  📓 Carnet chez vous                                        │
+│                                                             │
+│  - Vous écrivez dedans tous les jours                      │
+│  - Visible uniquement par vous                             │
+│  - Sauvegardé sur votre disque dur                         │
+│  - Commandes : git init, git add, git commit               │
+└─────────────────────────────────────────────────────────────┘
+                            ↕ git push / git pull
+┌─────────────────────────────────────────────────────────────┐
+│  VERSION DISTANTE (GitHub)                                  │
+│  ☁️ Carnet dans le cloud                                   │
+│                                                             │
+│  - Copie en ligne, accessible partout                      │
+│  - Visible par vos collègues/enseignants                   │
+│  - Sauvegarde de secours                                   │
+│  - Commandes : git push, git pull, git clone               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 📝 Les 3 étapes pour sauvegarder votre travail
+
+**Analogie** : Envoyer un colis par La Poste
+
+**Étape 1 : Préparer l'envoi** (`git init`)
+```bash
+git init
+```
+= "Installer une boîte aux lettres chez vous"
+- Transforme votre dossier en projet Git
+- Crée un dossier caché `.git/` qui stocke l'historique
+- À faire **une seule fois** par projet
+
+**Étape 2 : Emballer** (`git add`)
+```bash
+git add .
+```
+= "Mettre vos fichiers dans le carton"
+- Le `.` signifie "tous les fichiers modifiés"
+- Prépare les fichiers pour la sauvegarde
+- On peut aussi faire `git add fichier.txt` pour un fichier précis
+
+**Étape 3 : Étiqueter et poster** (`git commit`)
+```bash
+git commit -m "feat: initial commit with Nuxt UI"
+```
+= "Coller une étiquette et poster le colis"
+- `-m` = "message" (étiquette du colis)
+- Le message explique ce que contient le colis
+- **"feat:"** = Convention pour dire "nouvelle fonctionnalité" (voir ci-dessous)
+
+**Résultat** : Votre projet est sauvegardé localement avec un historique
+
+#### 🔗 Connecter local et distant (`git remote`)
+
+```bash
+git remote add origin https://github.com/username/projet.git
+```
+
+**Décomposition** :
+- **`git remote add`** = "Créer un lien vers un dépôt distant"
+- **`origin`** = Nom conventionnel du dépôt principal (comme "principal" ou "défaut")
+- **`https://github.com/...`** = Adresse du dépôt distant sur GitHub
+
+**Analogie** : Enregistrer l'adresse postale dans votre carnet d'adresses
+
+#### 📤 Envoyer votre code sur GitHub (`git push`)
+
+```bash
+git push -u origin main
+```
+
+**Décomposition** :
+- **`git push`** = "Pousser" (envoyer) les commits vers GitHub
+- **`-u`** = "Set upstream" = Mémoriser la destination pour les prochaines fois
+- **`origin`** = Nom du dépôt distant (défini plus haut)
+- **`main`** = Nom de la branche à envoyer
+
+**Analogie** : Déposer le colis à La Poste pour envoi
+
+#### 📋 Convention Conventional Commits
+
+**Format** : `type: description`
+
+Les types courants pour vos projets :
+
+| Type | Signification | Exemple | Quand l'utiliser |
+|------|---------------|---------|------------------|
+| `feat:` | Nouvelle fonctionnalité | `feat: add contact form` | Ajout d'une nouvelle page, composant, etc. |
+| `fix:` | Correction de bug | `fix: resolve navbar issue` | Réparer quelque chose qui ne marche pas |
+| `docs:` | Documentation uniquement | `docs: update README` | Modifier README, commentaires, etc. |
+| `style:` | Style/mise en forme | `style: format code` | Indentation, espaces, pas de changement logique |
+| `refactor:` | Refactoring | `refactor: simplify function` | Réécrire du code sans changer le comportement |
+| `test:` | Ajout de tests | `test: add login tests` | Ajouter des tests unitaires |
+| `chore:` | Tâches diverses | `chore: update dependencies` | Mise à jour de packages, config, etc. |
+| `ci:` | CI/CD | `ci: add deployment workflow` | Modifier les workflows GitHub Actions |
+
+**Pourquoi cette convention ?**
+- ✅ Historique Git plus clair et professionnel
+- ✅ Génération automatique de changelogs
+- ✅ Collaboration facilitée en équipe
+- ✅ Recherche de commits plus facile
+
+**C'est obligatoire ?**
+Non, mais **fortement recommandé** dans le monde professionnel. Dans ce guide, nous l'utilisons pour vous habituer aux bonnes pratiques.
+
+**Exemples concrets :**
+```bash
+git commit -m "feat: add dark mode toggle"
+git commit -m "fix: correct responsive menu on mobile"
+git commit -m "docs: add installation instructions"
+git commit -m "style: format CSS files"
+```
+
+---
 
 ### 3.1 Initialiser Git
 
@@ -215,7 +450,69 @@ git push -u origin main
 3. Dans le menu de gauche : **Pages**
 4. Source : **GitHub Actions** (pas "Deploy from a branch")
 
-**💡 Note :** GitHub Actions permet un déploiement automatisé via workflow.
+### 🤖 Comprendre : GitHub Actions vs Deploy from a branch
+
+**Deux façons de publier votre site sur GitHub Pages :**
+
+#### Option 1 : Deploy from a branch ❌ (Ancienne méthode)
+
+```
+┌─────────────────────────────────────────────────┐
+│  VOUS : Push code → GitHub                     │
+└──────────────┬──────────────────────────────────┘
+               │
+               ↓
+┌─────────────────────────────────────────────────┐
+│  GITHUB PAGES : Publie directement la branche  │
+│  ⚠️ Problème : Publie le CODE SOURCE           │
+│  (fichiers .vue, .ts, non compilés)            │
+│  → Le navigateur ne peut pas les lire !        │
+└─────────────────────────────────────────────────┘
+```
+
+**Pourquoi ça ne marche pas pour Nuxt :**
+- Nuxt a besoin d'être **compilé** (transformé en HTML/CSS/JS)
+- GitHub Pages publierait votre code source non compilé
+- Résultat : Site cassé ❌
+
+---
+
+#### Option 2 : GitHub Actions ✅ (Méthode moderne - celle que nous utilisons)
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  VOUS : Push code → GitHub                               │
+└────────────┬─────────────────────────────────────────────┘
+             │
+             ↓
+┌──────────────────────────────────────────────────────────┐
+│  GITHUB ACTIONS : Workflow automatique                   │
+│  1. ✅ Télécharge votre code                             │
+│  2. ✅ Installe Node.js et les dépendances               │
+│  3. ✅ COMPILE le projet (npm run generate)              │
+│  4. ✅ Publie les fichiers COMPILÉS sur GitHub Pages     │
+└────────────┬─────────────────────────────────────────────┘
+             │
+             ↓
+┌──────────────────────────────────────────────────────────┐
+│  GITHUB PAGES : Héberge le site compilé                 │
+│  ✅ Fichiers HTML/CSS/JS prêts à l'emploi                │
+│  → Le navigateur peut les afficher !                    │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Avantages de GitHub Actions :**
+- ✅ **Automatise** la compilation (plus d'oublis !)
+- ✅ **Optimise** le code (minification, compression)
+- ✅ **Teste** avant de déployer (si vous configurez des tests)
+- ✅ **Flexible** : vous contrôlez chaque étape
+- ✅ **Évolutif** : facile d'ajouter des étapes (linting, tests, etc.)
+
+**Analogie :**
+- **Option 1** = Photocopier vos notes manuscrites et les distribuer
+- **Option 2** = Imprimante automatique qui met en page, relie et distribue
+
+**C'est pour ça qu'on choisit "GitHub Actions" ! 🚀**
 
 ---
 
@@ -398,24 +695,365 @@ Maintenant que tout est configuré, voici le cycle de travail :
 
 ## 🆘 Dépannage
 
-### Le déploiement échoue
+### 🔧 Problèmes d'installation (Prérequis)
 
-**Vérifier :**
-1. ✅ `NUXT_APP_BASE_URL` correspond au nom de votre dépôt
-2. ✅ GitHub Pages est activé (Settings → Pages → Source: GitHub Actions)
-3. ✅ Le fichier `.nojekyll` existe dans `public/`
+#### "Command not found: git"
 
-### Le site s'affiche sans styles
+**Signification** : Git n'est pas installé sur votre ordinateur.
 
-**Cause :** Le `baseURL` est incorrect.
+**Solution :**
+
+**Windows :**
+1. Télécharger [Git for Windows](https://git-scm.com/download/win)
+2. Installer avec les options par défaut
+3. Redémarrer le terminal
+
+**macOS :**
+1. Ouvrir Terminal
+2. Taper `git` → Installation automatique proposée par Xcode Command Line Tools
+3. Ou installer via Homebrew : `brew install git`
+
+**Linux (Ubuntu/Debian) :**
+```bash
+sudo apt update
+sudo apt install git
+```
+
+**Vérifier l'installation** :
+```bash
+git --version
+# Devrait afficher : git version 2.x.x
+```
+
+---
+
+#### "npm: command not found" ou "node: command not found"
+
+**Signification** : Node.js et npm ne sont pas installés.
+
+**Solution :**
+1. Aller sur https://nodejs.org
+2. Télécharger la version **LTS** (Long Term Support) - actuellement Node.js 20+
+3. Installer
+4. **Redémarrer complètement votre terminal** (important !)
+
+**Vérifier l'installation** :
+```bash
+node --version
+# Devrait afficher : v20.x.x ou supérieur
+
+npm --version
+# Devrait afficher : 10.x.x ou supérieur
+```
+
+**Si ça ne fonctionne toujours pas** :
+- Windows : Vérifier que Node.js est dans le PATH (variables d'environnement)
+- macOS/Linux : Vérifier le PATH dans `~/.bashrc` ou `~/.zshrc`
+
+---
+
+#### "Permission denied" sur macOS/Linux
+
+**Signification** : Problème de permissions fichiers.
+
+**⚠️ NE PAS utiliser `sudo` avec npm !**
+
+**Solution recommandée** : Réparer les permissions npm
+```bash
+# Donner la propriété du dossier npm à votre utilisateur
+sudo chown -R $USER ~/.npm
+sudo chown -R $USER /usr/local/lib/node_modules
+```
+
+**Alternative** : Utiliser un gestionnaire de versions Node (recommandé pour éviter ce problème)
+- macOS/Linux : [nvm](https://github.com/nvm-sh/nvm)
+- Windows : [nvm-windows](https://github.com/coreybutler/nvm-windows)
+
+---
+
+### 🐛 Problèmes Git
+
+#### "fatal: not a git repository"
+
+**Signification** : Vous n'êtes pas dans un dossier Git, ou Git n'a pas été initialisé.
+
+**Solution :**
+1. Vérifier que vous êtes dans le bon dossier :
+   ```bash
+   pwd  # Affiche le chemin actuel
+   ```
+
+2. Aller dans le dossier de votre projet :
+   ```bash
+   cd mon-projet-nuxt
+   ```
+
+3. Vérifier la présence du dossier `.git` :
+   ```bash
+   ls -la | grep .git
+   ```
+
+4. Si `.git` n'existe pas, initialiser Git :
+   ```bash
+   git init
+   ```
+
+---
+
+#### "remote: Repository not found" lors du push
+
+**Causes possibles :**
+
+**1. URL du dépôt incorrecte**
+```bash
+# Vérifier l'URL configurée
+git remote -v
+
+# Si incorrecte, la corriger
+git remote set-url origin https://github.com/votre-username/votre-depot.git
+```
+
+**2. Dépôt GitHub pas encore créé**
+- Aller sur https://github.com/new
+- Créer le dépôt
+- Puis réessayer le push
+
+**3. Problème d'authentification GitHub**
+- Depuis août 2021, GitHub n'accepte plus les mots de passe
+- Utiliser un **Personal Access Token** ou **SSH**
+
+**Créer un Personal Access Token :**
+1. GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Generate new token → Cocher `repo` → Generate
+3. **Copier le token** (vous ne le reverrez plus !)
+4. Utiliser ce token comme mot de passe lors du push
+
+---
+
+#### "Updates were rejected because the tip of your current branch is behind"
+
+**Signification** : La version distante est plus récente que votre version locale.
+
+**Solution** :
+```bash
+# Récupérer les changements distants
+git pull origin main
+
+# Résoudre les conflits éventuels (si demandé)
+# Puis recommencer le push
+git push origin main
+```
+
+---
+
+### 🎨 Problèmes d'affichage du site
+
+#### Le site s'affiche blanc / complètement vide
+
+**Causes possibles :**
+
+**1. Fichier `.nojekyll` manquant**
+```bash
+# Vérifier sa présence
+ls public/.nojekyll
+
+# Si absent, le créer
+mkdir -p public
+touch public/.nojekyll
+
+# Puis commit et push
+git add public/.nojekyll
+git commit -m "fix: add .nojekyll file"
+git push origin main
+```
+
+**2. baseURL incorrect**
+- Vérifier dans `.github/workflows/deploy-github-pages.yml` ligne `NUXT_APP_BASE_URL`
+- Doit être : `/nom-exact-du-depot/` (avec `/` au début ET à la fin)
+- Exemple : Si votre dépôt s'appelle `mon-site`, utiliser `/mon-site/`
+
+**3. GitHub Pages pas activé**
+1. Aller sur votre dépôt GitHub
+2. Settings → Pages
+3. Source : **GitHub Actions** (pas "Deploy from a branch")
+
+---
+
+#### Le site s'affiche sans styles (CSS)
+
+**Cause** : Le `baseURL` est incorrect.
 
 **Solution :**
 1. Vérifier `NUXT_APP_BASE_URL` dans `.github/workflows/deploy-github-pages.yml`
 2. Le format doit être : `/nom-du-depot/` (avec les `/` au début et à la fin)
 
-### Erreurs 404 sur les assets
+**Exemples :**
+```yaml
+# ✅ Correct
+NUXT_APP_BASE_URL: /mon-projet-nuxt/
 
-**Solution :** Vérifier que le fichier `.nojekyll` existe dans `public/`
+# ❌ Incorrect
+NUXT_APP_BASE_URL: mon-projet-nuxt/    # Manque / au début
+NUXT_APP_BASE_URL: /mon-projet-nuxt    # Manque / à la fin
+NUXT_APP_BASE_URL: mon-projet-nuxt     # Manque les deux /
+```
+
+3. Après correction, commit et push :
+```bash
+git add .github/workflows/deploy-github-pages.yml
+git commit -m "fix: correct baseURL format"
+git push origin main
+```
+
+---
+
+#### Erreurs 404 sur les assets (images, CSS, JS)
+
+**Solutions à essayer dans l'ordre :**
+
+**1. Vérifier `.nojekyll`**
+```bash
+ls public/.nojekyll
+# Si absent, le créer (voir section ci-dessus)
+```
+
+**2. Vérifier le baseURL** (voir section "Le site s'affiche sans styles")
+
+**3. Vider le cache du navigateur**
+- Chrome/Edge : `Ctrl + Shift + Suppr` (Windows) ou `Cmd + Shift + Delete` (Mac)
+- Cocher "Images et fichiers en cache"
+- Vider
+
+**4. Forcer le redéploiement**
+```bash
+# Créer un commit vide pour redéclencher le workflow
+git commit --allow-empty -m "chore: trigger redeployment"
+git push origin main
+```
+
+---
+
+### ⚙️ Problèmes GitHub Actions
+
+#### Le déploiement échoue
+
+**Vérifier dans l'ordre :**
+
+1. **Aller voir les logs détaillés**
+   - GitHub → Actions → Cliquer sur le workflow échoué
+   - Cliquer sur le job en rouge
+   - Lire le message d'erreur
+
+2. **Vérifier la configuration**
+   - ✅ `NUXT_APP_BASE_URL` correspond au nom exact de votre dépôt
+   - ✅ GitHub Pages est activé (Settings → Pages → Source: GitHub Actions)
+   - ✅ Le fichier `.nojekyll` existe dans `public/`
+
+3. **Erreurs courantes et solutions :**
+
+**Erreur : "Process completed with exit code 1" lors de npm ci**
+```
+Cause : package-lock.json pas synchronisé
+Solution :
+  rm package-lock.json
+  npm install
+  git add package-lock.json
+  git commit -m "fix: regenerate package-lock"
+  git push origin main
+```
+
+**Erreur : "Missing script: generate"**
+```
+Cause : package.json n'a pas le script "generate"
+Solution : Vérifier que package.json contient :
+  "scripts": {
+    "generate": "nuxt generate"
+  }
+```
+
+**Erreur : "EACCES: permission denied"**
+```
+Cause : Problème de cache npm dans GitHub Actions
+Solution : Dans le workflow, ajouter après "Setup Node" :
+  - name: Clear npm cache
+    run: npm cache clean --force
+```
+
+---
+
+#### Le workflow ne se déclenche pas
+
+**Vérifications :**
+
+1. **Le fichier workflow est-il au bon endroit ?**
+   ```
+   .github/
+     └── workflows/
+           └── deploy-github-pages.yml  ✅
+   ```
+
+2. **Le nom de la branche est-il correct ?**
+   - Ouvrir `.github/workflows/deploy-github-pages.yml`
+   - Vérifier la section `on: push: branches:`
+   - Si votre branche s'appelle `master` au lieu de `main`, adapter
+
+3. **Le workflow est-il activé ?**
+   - GitHub → Actions → Vérifier qu'il n'y a pas de message "Workflows disabled"
+   - Si désactivé : Settings → Actions → General → "Allow all actions"
+
+4. **Déclenchement manuel**
+   - GitHub → Actions → Deploy to GitHub Pages → Run workflow
+
+---
+
+### 🌐 Problèmes spécifiques au navigateur
+
+#### Le site fonctionne en local mais pas sur GitHub Pages
+
+**Checklist complète :**
+
+```
+☐ Fichier .nojekyll présent dans public/
+☐ baseURL configuré correctement dans le workflow
+☐ GitHub Pages activé avec source "GitHub Actions"
+☐ Workflow a réussi (onglet Actions → tout en vert)
+☐ Attendre 2-3 minutes après le déploiement (propagation DNS)
+☐ Vider le cache du navigateur
+☐ Essayer en navigation privée
+☐ Essayer avec un autre navigateur
+```
+
+**Si toujours cassé, regarder la console du navigateur :**
+1. Ouvrir le site
+2. Appuyer sur `F12` (ouvrir les DevTools)
+3. Onglet "Console"
+4. Chercher les erreurs en rouge
+5. Noter les erreurs 404 (fichiers non trouvés)
+
+---
+
+### 💡 Obtenir de l'aide
+
+**Si vous êtes bloqué :**
+
+1. **Vérifier l'onglet Actions sur GitHub**
+   - Cliquer sur le workflow échoué
+   - Lire les logs en détail
+   - Copier le message d'erreur exact
+
+2. **Vérifier la console du navigateur** (F12)
+   - Onglet Console : erreurs JavaScript
+   - Onglet Network : fichiers 404
+
+3. **Comparer avec le dépôt exemple**
+   - Comparer votre code avec le dépôt de départ
+   - Vérifier les noms de fichiers, chemins, configuration
+
+4. **Demander de l'aide avec contexte**
+   - Message d'erreur exact
+   - Capture d'écran des logs GitHub Actions
+   - Lien vers votre dépôt (s'il est public)
+   - Ce que vous avez déjà essayé
 
 ---
 
@@ -813,6 +1451,190 @@ v1.2.3
 - [Guide GitHub Actions](https://docs.github.com/en/actions)
 - [Guide GitHub Pages](https://docs.github.com/en/pages)
 - [Semantic Versioning](https://semver.org/lang/fr/)
+
+---
+
+## 📖 Glossaire DevOps pour débutants
+
+### A
+
+**Artifact (Artefact)**
+: Archive temporaire de fichiers créée pendant un workflow CI/CD. Permet de transférer des fichiers entre différents jobs d'un workflow.
+: *Exemple* : Les fichiers compilés de votre site sont mis dans un artifact pour être déployés.
+
+### B
+
+**baseURL**
+: Chemin racine de votre application web.
+: *Exemples* : `/` (racine du domaine) ou `/mon-projet/` (sous-dossier)
+
+**Branch (Branche)**
+: Version parallèle de votre code dans Git. Permet de travailler sur plusieurs fonctionnalités en même temps.
+: *Exemple* : branche `main` (principale), branche `feature/login` (nouvelle fonctionnalité)
+
+**Build (Construction)**
+: Processus de compilation et transformation du code source en fichiers prêts pour la production.
+: *Exemple* : `npm run build` compile votre projet Nuxt
+
+### C
+
+**CI/CD**
+: **Continuous Integration** / **Continuous Deployment**
+: - **CI** = Intégration Continue : Tester automatiquement chaque modification
+: - **CD** = Déploiement Continu : Déployer automatiquement après les tests
+: *Avantage* : Automatisation = moins d'erreurs humaines
+
+**Commit**
+: Sauvegarde d'un état de votre code dans Git avec un message descriptif.
+: *Analogie* : Photo instantanée de votre projet à un moment précis
+
+**Concurrency (Concurrence)**
+: Gestion de plusieurs processus qui s'exécutent en même temps.
+: *Exemple* : Éviter que 2 déploiements se fassent simultanément
+
+### D
+
+**Déploiement**
+: Action de mettre votre site/application en ligne (accessible sur internet).
+: *Synonymes* : Mise en ligne, publication, deployment
+
+**Dépôt (Repository)**
+: Projet complet avec son code et tout l'historique Git.
+: *Types* : Dépôt local (votre ordinateur) vs dépôt distant (GitHub)
+
+### E
+
+**Environnement**
+: Contexte d'exécution d'une application avec sa configuration spécifique.
+: *Exemples* :
+:   - **Développement** : Votre ordinateur (npm run dev)
+:   - **Staging/Test** : Serveur de test (GitHub Pages)
+:   - **Production** : Serveur accessible au public (SFTP)
+
+**env (Variables d'environnement)**
+: Paramètres de configuration qui changent selon l'environnement.
+: *Exemple* : `process.env.NUXT_APP_BASE_URL`
+
+### G
+
+**GitHub Actions**
+: Service d'automatisation de GitHub pour exécuter des workflows (compilation, tests, déploiement).
+: *Alternative à* : Deploy from a branch (méthode moins flexible)
+
+**GitHub Pages**
+: Service d'hébergement gratuit de sites statiques fourni par GitHub.
+: *Limites* : Sites statiques uniquement (pas de base de données, pas de serveur backend)
+
+**Generate (Génération)**
+: Créer une version statique (HTML/CSS/JS) d'une application.
+: *Exemple* : `npm run generate` crée les fichiers dans `.output/public/`
+
+### J
+
+**Jekyll**
+: Générateur de sites statiques utilisé par défaut par GitHub Pages.
+: *Note* : On le désactive avec `.nojekyll` pour les projets Nuxt
+
+**Job**
+: Ensemble de tâches (steps) dans un workflow GitHub Actions.
+: *Exemple* : Job "build" + Job "deploy"
+
+### L
+
+**Linting**
+: Analyse automatique du code pour détecter erreurs et non-conformités au style.
+: *Outil* : ESLint pour JavaScript/TypeScript
+
+### N
+
+**Node.js**
+: Environnement d'exécution JavaScript côté serveur.
+: *Nécessaire pour* : Nuxt, npm, compilation
+
+**npm**
+: **Node Package Manager** : Gestionnaire de packages JavaScript.
+: *Commandes courantes* : `npm install`, `npm run dev`, `npm run build`
+
+**npx**
+: Exécute des packages npm sans installation permanente.
+: *Différence avec npm* : `npm install` = installer | `npx` = exécuter temporairement
+
+**Nuxt**
+: Framework basé sur Vue.js pour créer des applications web modernes.
+: *Modes* : SSR (Server-Side Rendering), SPA, SSG (Static Site Generation)
+
+### P
+
+**Package**
+: Module de code réutilisable (bibliothèque, framework).
+: *Exemples* : `@nuxt/ui`, `vue`, `typescript`
+
+**Pipeline**
+: Séquence automatisée d'étapes (build, test, deploy).
+: *Synonyme* : Workflow CI/CD
+
+**Production**
+: Environnement accessible par les utilisateurs finaux (le "vrai" site en ligne).
+: *Opposé de* : Développement, Test/Staging
+
+### R
+
+**Remote (Distant)**
+: Dépôt Git hébergé sur un serveur (GitHub, GitLab, etc.).
+: *Commandes* : `git remote add`, `git push`, `git pull`
+
+**Repository**
+: Voir "Dépôt"
+
+### S
+
+**Secret**
+: Donnée sensible stockée de manière sécurisée (mot de passe, clé API).
+: *Dans GitHub* : Settings → Secrets and variables → Actions
+
+**SFTP**
+: **Secure File Transfer Protocol** : Protocole de transfert de fichiers sécurisé (chiffré).
+: *Différence avec FTP* : SFTP = chiffré ✅ | FTP = non chiffré ❌
+
+**SSH**
+: **Secure Shell** : Protocole de connexion sécurisée à distance.
+: *Utilise le port* : 22 (généralement)
+
+**Staging**
+: Environnement de test qui ressemble à la production.
+: *Exemple* : GitHub Pages comme staging avant déploiement SFTP production
+
+**Static Site (Site statique)**
+: Site composé uniquement de fichiers HTML/CSS/JS (pas de serveur, pas de base de données).
+: *Avantages* : Rapide, sécurisé, hébergement gratuit possible
+
+**Step (Étape)**
+: Action individuelle dans un job de workflow.
+: *Exemples* : "Checkout code", "Install dependencies", "Run tests"
+
+### T
+
+**Tag**
+: Marqueur Git pour identifier une version spécifique du code.
+: *Format* : Semantic Versioning (ex: `v1.0.0`, `v2.3.1`)
+
+**Token**
+: Clé d'authentification temporaire ou permanente.
+: *Exemple* : `GITHUB_TOKEN` (créé automatiquement par GitHub Actions)
+
+### W
+
+**Workflow**
+: Ensemble automatisé d'étapes définies dans un fichier YAML.
+: *Localisation* : `.github/workflows/`
+: *Déclencheurs* : push, pull request, tag, manuel, planifié
+
+### Y
+
+**YAML**
+: **YAML Ain't Markup Language** : Format de fichier de configuration lisible par les humains.
+: *Extension* : `.yml` ou `.yaml`
+: *Utilisé pour* : Workflows GitHub Actions, configuration Docker, etc.
 
 ---
 
