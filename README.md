@@ -389,6 +389,35 @@ Port         : 22
 Dossier web  : /public_html/
 ```
 
+**💡 Astuce : Comment trouver le chemin du dossier racine ?**
+
+Le chemin du dossier web varie selon les hébergeurs. Voici comment le trouver :
+
+1. **Via le panneau de contrôle (cPanel, Plesk, etc.) :**
+   - Connectez-vous à votre panneau de contrôle
+   - Cherchez "Gestionnaire de fichiers" ou "File Manager"
+   - Le dossier public est généralement affiché en premier
+
+2. **Chemins courants selon les hébergeurs :**
+   - **Infomaniak, OVH, O2switch :** `/public_html/`
+   - **Hostinger, GoDaddy :** `/public_html/`
+   - **1&1 IONOS :** `/` (racine directe)
+   - **Planethoster :** `/public_html/`
+   - **Alwaysdata :** `/www/`
+   - **Gandi :** `/htdocs/`
+
+3. **Via un client SFTP (FileZilla, Cyberduck) :**
+   - Connectez-vous avec vos identifiants
+   - Cherchez un dossier nommé `public_html`, `www`, `htdocs`, ou `web`
+   - C'est là que vous devez déposer vos fichiers web
+
+4. **Test simple :**
+   - Uploadez un fichier `test.html` dans différents dossiers
+   - Essayez d'y accéder via `https://votredomaine.com/test.html`
+   - Le bon dossier est celui où le fichier est accessible publiquement
+
+**⚠️ Important :** Notez le chemin COMPLET (ex: `/public_html/` et non `public_html/`)
+
 ### 7.2 Configurer les secrets GitHub
 
 Les identifiants SFTP doivent être stockés de manière sécurisée dans GitHub.
@@ -410,6 +439,98 @@ Les identifiants SFTP doivent être stockés de manière sécurisée dans GitHub
 | `SFTP_PORT` | Port de connexion | `22` |
 
 **⚠️ Attention :** Ne JAMAIS mettre ces informations directement dans le code !
+
+---
+
+### 🔒 7.2.1 Sécurité du déploiement SFTP
+
+**Pourquoi SFTP avec mot de passe ?**
+
+Notre configuration utilise SFTP (Secure File Transfer Protocol) avec authentification par mot de passe. Voici pourquoi c'est le bon choix pour ce projet :
+
+#### ✅ Avantages de notre configuration :
+
+1. **Transfert chiffré** 🔐
+   - Contrairement à FTP classique (non sécurisé), SFTP chiffre TOUTES les données
+   - Vos fichiers et identifiants sont protégés pendant le transfert
+   - Utilise le protocole SSH sous-jacent (port 22)
+
+2. **Pas d'accès shell au serveur** 🛡️
+   - Grâce au paramètre `sftp_only: true` dans le workflow
+   - Limite l'accès au transfert de fichiers uniquement
+   - Empêche l'exécution de commandes sur le serveur
+
+3. **Sécurité suffisante pour du contenu statique** 📄
+   - Nuxt `generate` crée des fichiers HTML/CSS/JS statiques localement
+   - Pas besoin d'exécution de code sur le serveur
+   - Simple transfert de fichiers = risques minimisés
+
+#### ❌ Pourquoi PAS de clé SSH privée ?
+
+Nous n'utilisons **PAS** de clé SSH privée car :
+
+- **Risque élevé si GitHub Actions est compromis :**
+  - Une clé SSH privée donnerait un accès shell COMPLET au serveur
+  - Permettrait d'exécuter n'importe quelle commande sur votre hébergement
+  - Pourrait compromettre tout le serveur, pas seulement votre site
+
+- **Inutile pour notre cas d'usage :**
+  - Nous déployons uniquement des fichiers statiques
+  - Pas besoin de scripts d'exécution côté serveur
+  - Le mot de passe SFTP suffit largement
+
+#### ❌ Pourquoi PAS de FTP classique ?
+
+Le FTP classique (port 21) est **DÉCONSEILLÉ** car :
+
+- ❌ **Pas de chiffrement** : Mot de passe et fichiers envoyés en clair
+- ❌ **Facilement interceptable** : Attaque "man-in-the-middle" possible
+- ❌ **Standard obsolète** : Remplacé par SFTP/FTPS depuis des années
+
+#### 📊 Comparatif de sécurité :
+
+| Méthode | Chiffrement | Accès shell | Sécurité | Recommandation |
+|---------|-------------|-------------|----------|----------------|
+| **FTP** | ❌ Non | ❌ Non | 🔴 Faible | ❌ Éviter |
+| **FTPS** | ✅ Oui | ❌ Non | 🟡 Moyenne | ⚠️ Acceptable |
+| **SFTP (mot de passe)** | ✅ Oui | ❌ Non* | 🟢 Bonne | ✅ **Recommandé** |
+| **SFTP (clé SSH)** | ✅ Oui | ✅ Oui | 🟡 Risqué** | ⚠️ Surpuissant |
+
+*Avec `sftp_only: true`
+**Risqué si GitHub Actions compromis
+
+#### 🛡️ Que se passe-t-il si les credentials sont compromis ?
+
+Avec notre configuration SFTP actuelle :
+
+- ✅ **Dégâts limités** : Accès uniquement aux fichiers de votre site web
+- ✅ **Pas d'accès shell** : Impossible d'exécuter des commandes sur le serveur
+- ✅ **Facile à réparer** : Changer le mot de passe SFTP dans GitHub Secrets
+- ✅ **Pas de propagation** : Le reste du serveur reste protégé
+
+Avec une clé SSH privée (non utilisée ici) :
+
+- ❌ **Accès shell complet** : Contrôle total du serveur
+- ❌ **Risque de backdoor** : Installation de logiciels malveillants possible
+- ❌ **Difficile à nettoyer** : Nécessite investigation complète du serveur
+- ❌ **Propagation possible** : Accès à d'autres sites sur le même serveur
+
+#### 🎓 Enseignement pour les apprentis :
+
+**Règle d'or en sécurité :**
+> "Donner uniquement les permissions minimales nécessaires"
+
+Pour déployer des fichiers statiques :
+- ✅ SFTP avec mot de passe = permissions minimales suffisantes
+- ❌ Clé SSH privée = permissions excessives (overkill)
+
+**Analogie :**
+- SFTP = Clé de la boîte aux lettres (déposer du courrier)
+- SSH = Clés de la maison (accès à toutes les pièces)
+
+Pour déposer du courrier, une clé de boîte aux lettres suffit ! 📬
+
+---
 
 ### 7.3 Créer le workflow de production
 
